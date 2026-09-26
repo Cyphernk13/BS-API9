@@ -1,8 +1,8 @@
 {
-    "startDate": "06-04-2025",
+    "startDate": "26-09-2026",
     "stats": {
         "pb-IF4VAk4a": {
-            "rank": 1,
+            "rank": 3,
             "name": "pb-IF4VAk4a",
             "scores": 0,
             "total_damage": 0.0,
@@ -14,18 +14,31 @@
             "aid": "pb-IF4VAk4a",
             "last_seen": "2022-04-26 17:01:13.715014"
         },
-        "pb-IF4CUGMfXA==": {
-            "rank": 2,
-            "name": "PC913901",
-            "scores": 0,
+        "pb-IF4JXmhZPA==": {
+            "rank": 1,
+            "name": "Cypher13",
+            "scores": 685,
             "total_damage": 0.0,
-            "kills": 0,
-            "deaths": 0,
-            "games": 1,
-            "kd": 0.0,
-            "avg_score": 0.0,
-            "last_seen": "2025-04-13 00:31:54.189609",
-            "aid": "pb-IF4CUGMfXA=="
+            "kills": 73,
+            "deaths": 64,
+            "games": 8,
+            "kd": 1.14,
+            "avg_score": 85.625,
+            "last_seen": "2026-09-26 19:34:27.270212",
+            "aid": "pb-IF4JXmhZPA=="
+        },
+        "pb-IF4yUlQ7Cw==": {
+            "rank": 2,
+            "name": "BuahZakar",
+            "scores": 70,
+            "total_damage": 0.0,
+            "kills": 9,
+            "deaths": 25,
+            "games": 2,
+            "kd": 0.36,
+            "avg_score": 35.0,
+            "last_seen": "2026-09-26 19:12:43.678177",
+            "aid": "pb-IF4yUlQ7Cw=="
         }
     }
 }

@@ -21,16 +21,16 @@
     "enable": true,
     "ingame_idle_time_in_secs": 60,
     "kick_idle_from_lobby": true,
-    "lobby_idle_time_in_secs": 10
+    "lobby_idle_time_in_secs": 60
   },
   "afterWarnKickMsg": "Enough warnings, Goodbye have a nice day :)",
   "allowInGameChat": true,
   "allowTeamChat": true,
   "allowVotes": true,
   "autoNightMode": {
-    "enable": true,
+    "enable": false,
     "endTime": "06:00",
-    "fireflies": true,
+    "fireflies": false,
     "fireflies_random_color": false,
     "startTime": "18:30"
   },
@@ -46,7 +46,7 @@
   "colorful_explosions": {
     "enable": true
   },
-  "colorfullMap": true,
+  "colorfullMap": false,
   "contributeData": true,
   "coopModeWithLessPlayers": {
     "enable": false,
@@ -70,20 +70,20 @@
     "Quantity": {
       "Curse": 1,
       "Fire Bombs": 3,
-      "Fly Bombs": 3,
-      "Goodbye": 2,
-      "Healing Damage": 1,
+      "Fly Bombs": 0,
+      "Goodbye": 0,
+      "Healing Damage": 0,
       "Health": 1,
-      "Ice Bombs": 3,
-      "Ice Man": 1,
+      "Ice Bombs": 0,
+      "Ice Man": 0,
       "Impact Bombs": 3,
       "Impairment Bombs": 2,
       "Mine Bombs": 2,
-      "Punch": 3,
-      "Shield": 2,
-      "Speed": 2,
+      "Punch": 0,
+      "Shield": 0,
+      "Speed": 0,
       "Sticky Bombs": 3,
-      "Tank Shield": 1,
+      "Tank Shield": 0,
       "Triple": 3
     },
     "enable": false,
@@ -120,7 +120,7 @@
   "enableHitTexts": true,
   "enableTagAnimation": true,
   "enableTop5effects": true,
-  "enableeffects": true,
+  "enableeffects": false,
   "enablehptag": true,
   "enablerank": true,
   "enablestats": true,
@@ -156,9 +156,9 @@
   },
   "regularWelcomeMsg": "Welcome Back",
   "sameCharacterForTeam": false,
-  "statsResetAfterDays": 31,
+  "statsResetAfterDays": 45,
   "textonmap": {
-    "bottom left watermark": "Owner : <owner-name> \nEditor : <bablu>\nScripts : BCS1.7.51",
+    "bottom left watermark": "Owner : Cypher \nEditor : Cypher\nScripts : BCS1.7.51",
     "center highlights": {
       "color": [
         1,
@@ -178,9 +178,12 @@
   "useV2Account": false,
   "warnMsg": "WARNING !!!",
   "whitelist": false,
-  "mfa" : {
+  "mfa": {
     "enable": true,
     "enforce_for_all_players": false,
-    "enforce_for_accounts": [ "HeySmoothy", "test" ]
+    "enforce_for_accounts": [
+      "HeySmoothy",
+      "test"
+    ]
   }
 }
