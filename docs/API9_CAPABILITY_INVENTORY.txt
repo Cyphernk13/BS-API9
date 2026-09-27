@@ -1,0 +1,3262 @@
+================================================================================
+CYPHER BS API9 CAPABILITY INVENTORY
+================================================================================
+
+
+--------------------------------------------------------------------------------
+dist/ba_root/mods/playersdata/pdata.py
+--------------------------------------------------------------------------------
+Functions:
+  def get_info(account_id)
+  def get_profiles()
+  def get_profiles_archive_index()
+  def get_old_profiles(filename)
+  def get_blacklist()
+  def update_blacklist()
+  def commit_profiles(data)
+  def get_detailed_info(pbid)
+  def add_profile(account_id, display_string, current_name, account_age)
+  def update_display_string(account_id, display_string)
+  def update_profile(account_id, display_string, allprofiles, name)
+  def ban_player(account_id, duration_in_days, reason)
+  def unban_player(account_id)
+  def disable_kick_vote(account_id, duration, reason)
+  def enable_kick_vote(account_id)
+  def mute(account_id, duration_in_days, reason)
+  def unmute(account_id)
+  def update_spam(account_id, spam_count, last_spam)
+  def commit_roles(data)
+  def get_roles()
+  def create_role(role)
+  def add_player_role(role, account_id)
+  def remove_player_role(role, account_id)
+  def add_command_role(role, command)
+  def remove_command_role(role, command)
+  def change_role_tag(role, tag)
+  def get_player_roles(account_id)
+  def get_custom()
+  def set_effect(effect, account_id)
+  def set_tag(tag, account_id)
+  def update_roles(roles)
+  def get_custom_perks()
+  def update_custom_perks(custom)
+  def remove_effect(account_id)
+  def remove_tag(account_id)
+  def commit_c()
+  def update_toppers(topper_list)
+  def load_white_list()
+  def load_cache()
+  def dump_cache()
+
+Classes:
+  class CacheData
+
+--------------------------------------------------------------------------------
+dist/ba_root/mods/stats/mystats.py
+--------------------------------------------------------------------------------
+Functions:
+  def get_all_stats()
+  def backupStatsFile()
+  def dump_stats(s)
+  def get_stats_by_id(account_id)
+  def get_cached_stats()
+  def get_sorted_stats(stats)
+  def refreshStats()
+  def update(score_set)
+  def getRank(acc_id)
+  def updateTop3Names(ids)
+  def __init__(self, account_kills, account_deaths, account_scores)
+  def run(self)
+
+Classes:
+  class UpdateThread
+    .__init__(self, account_kills, account_deaths, account_scores)
+    .run(self)
+
+--------------------------------------------------------------------------------
+dist/ba_root/mods/serverdata/serverdata.py
+--------------------------------------------------------------------------------
+Functions:
+  def get_stats_index()
+  def read_logs(filename)
+
+Classes:
+  NONE
+
+--------------------------------------------------------------------------------
+dist/ba_root/mods/tools/servercontroller.py
+--------------------------------------------------------------------------------
+PARSE ERROR: SyntaxError: unterminated string literal (detected at line 51) (servercontroller.py, line 51)
+
+--------------------------------------------------------------------------------
+dist/ba_root/mods/tools/notification_manager.py
+--------------------------------------------------------------------------------
+Functions:
+  def get_vapid_keys()
+  def send_push_notification(subscription, payload)
+  def get_subscriber_id(sub)
+  def generate_random_string(length)
+  def subscribe(sub, account_id, name)
+  def player_joined(pb_id)
+  def loadCache()
+  def dump_cache()
+
+Classes:
+  NONE
+
+--------------------------------------------------------------------------------
+dist/ba_root/mods/tools/playlist.py
+--------------------------------------------------------------------------------
+Functions:
+  def set_playlist(content)
+  def set_playlist_inline(playlist, newPLaylistType)
+  def withDelay(session, playlist)
+  def updateSession(session, playlist)
+  def updatePlaylist(playlist)
+  def set_next_map(session, game_map)
+  def playlist(code)
+  def setPlaylist(para)
+  def flush_playlists()
+
+Classes:
+  NONE
+
+--------------------------------------------------------------------------------
+dist/ba_root/mods/tools/account.py
+--------------------------------------------------------------------------------
+Functions:
+  def updateOwnerIps()
+  def __init__(self)
+  def _on_proxy_request_response(self, response)
+  def _ask_for_status(self)
+  def _got_status(self, response)
+  def _logged_in(self)
+
+Classes:
+  class AccountUtil
+    .__init__(self)
+    ._on_proxy_request_response(self, response)
+    ._ask_for_status(self)
+    ._got_status(self, response)
+    ._logged_in(self)
+
+--------------------------------------------------------------------------------
+dist/ba_root/mods/features/votingmachine.py
+--------------------------------------------------------------------------------
+Functions:
+  def vote(pb_id, client_id, vote_type)
+  def reset_votes()
+  def max_votes_required(players)
+  def update_vote_text(votes_needed)
+  def remove_vote_text()
+
+Classes:
+  NONE
+
+--------------------------------------------------------------------------------
+dist/ba_root/mods/features/complaints.py
+--------------------------------------------------------------------------------
+MISSING
+
+--------------------------------------------------------------------------------
+dist/ba_root/mods/classic_duel.py
+--------------------------------------------------------------------------------
+Functions:
+  def _cypher_duel_ffa_point_awards(session)
+  def __init__(self)
+  def __init__(self)
+  def get_available_settings(cls, sessiontype)
+  def supports_session_type(cls, sessiontype)
+  def get_supported_maps(cls, sessiontype)
+  def __init__(self, settings)
+  def get_instance_description(self)
+  def get_instance_description_short(self)
+  def _show_scoreboard_info(self)
+  def _show_info(self)
+  def on_begin(self)
+  def on_player_join(self, player)
+  def on_player_leave(self, player)
+  def on_team_join(self, team)
+  def spawn_player(self, player)
+  def _delete_ping_label(self, player)
+  def _create_ping_label(self, player)
+  def _get_ping_color(ping_ms)
+  def _update_ping_labels(self)
+  def _get_spawn_point(self, player)
+  def _enqueue_player(self, player)
+  def _start_next_duel(self)
+  def _get_round_score_store(self)
+  def _get_series_score_store(self)
+  def _get_round_kills_store(self)
+  def _get_sessionplayer_account_id(self, sessionplayer)
+  def _get_account_id(self, player)
+  def _save_player_score(self, player)
+  def _restore_player_score(self, player, retries)
+  def _update_scoreboard(self)
+  def _clear_icons(self)
+  def _update_icons(self)
+  def handlemessage(self, msg)
+  def end_game(self)
+
+Classes:
+  class ModLang
+  class Player
+    .__init__(self)
+  class Team
+    .__init__(self)
+  class DuelClassicGame
+    .get_available_settings(cls, sessiontype)
+    .supports_session_type(cls, sessiontype)
+    .get_supported_maps(cls, sessiontype)
+    .__init__(self, settings)
+    .get_instance_description(self)
+    .get_instance_description_short(self)
+    ._show_scoreboard_info(self)
+    ._show_info(self)
+    .on_begin(self)
+    .on_player_join(self, player)
+    .on_player_leave(self, player)
+    .on_team_join(self, team)
+    .spawn_player(self, player)
+    ._delete_ping_label(self, player)
+    ._create_ping_label(self, player)
+    ._get_ping_color(ping_ms)
+    ._update_ping_labels(self)
+    ._get_spawn_point(self, player)
+    ._enqueue_player(self, player)
+    ._start_next_duel(self)
+    ._get_round_score_store(self)
+    ._get_series_score_store(self)
+    ._get_round_kills_store(self)
+    ._get_sessionplayer_account_id(self, sessionplayer)
+    ._get_account_id(self, player)
+    ._save_player_score(self, player)
+    ._restore_player_score(self, player, retries)
+    ._update_scoreboard(self)
+    ._clear_icons(self)
+    ._update_icons(self)
+    .handlemessage(self, msg)
+    .end_game(self)
+
+--------------------------------------------------------------------------------
+JSON: dist/ba_root/mods/playersdata/profiles.json
+--------------------------------------------------------------------------------
+{
+  "__type__": "dict",
+  "__keys__": [
+    "pb-IF4gB3Bf",
+    "pb-IF4JXmhZPA==",
+    "pb-IF4LXncBMQ==",
+    "pb-IF4VURMCFQ==",
+    "pb-IF4IUlcvVg==",
+    "pb-IF4zXkIoUw==",
+    "pb-IF4mXhIYUg==",
+    "pb-IF4oXmYIIQ==",
+    "pb-IF4wUlccDA==",
+    "pb-IF4yUlQ7Cw==",
+    "pb-IF4DVBQpFg==",
+    "pb-IF4pXkEeFg==",
+    "pb-IF4JXkEaMA==",
+    "pb-IF4cU00RUw==",
+    "pb-IF4KXncCKA==",
+    "pb-IF4hV2kBVg==",
+    "pb-IF4MVFI6Bw==",
+    "pb-IF4nUXo9XQ==",
+    "pb-IF4hXkE4JA==",
+    "pb-IF4OXmYMLA==",
+    "pb-IF4lUGoyMg=="
+  ],
+  "__sample__": {
+    "pb-IF4gB3Bf": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "isBan",
+        "isMuted",
+        "accountAge",
+        "registerOn",
+        "canStartKickVote",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 2,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 11
+        },
+        "isBan": {
+          "__type__": "bool"
+        },
+        "isMuted": {
+          "__type__": "bool"
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "canStartKickVote": {
+          "__type__": "bool"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 12
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4JXmhZPA==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID",
+        "cMsgCount",
+        "lastMsgTime",
+        "lastMsg",
+        "cSameMsg"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 9
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 14
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        },
+        "cMsgCount": {
+          "__type__": "int"
+        },
+        "lastMsgTime": {
+          "__type__": "float"
+        },
+        "lastMsg": {
+          "__type__": "str",
+          "__length__": 6
+        },
+        "cSameMsg": {
+          "__type__": "int"
+        }
+      }
+    },
+    "pb-IF4LXncBMQ==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID",
+        "cMsgCount",
+        "lastMsgTime",
+        "lastMsg",
+        "cSameMsg"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 16
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 12
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        },
+        "cMsgCount": {
+          "__type__": "int"
+        },
+        "lastMsgTime": {
+          "__type__": "float"
+        },
+        "lastMsg": {
+          "__type__": "str",
+          "__length__": 3
+        },
+        "cSameMsg": {
+          "__type__": "int"
+        }
+      }
+    },
+    "pb-IF4VURMCFQ==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 11
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 15
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4IUlcvVg==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 11
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 14
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4zXkIoUw==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 11
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 11
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4mXhIYUg==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 10
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 13
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4oXmYIIQ==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 6
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 15
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4wUlccDA==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 16
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 13
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4yUlQ7Cw==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID",
+        "cMsgCount",
+        "lastMsgTime",
+        "lastMsg",
+        "cSameMsg"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 2,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 11
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 15
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        },
+        "cMsgCount": {
+          "__type__": "int"
+        },
+        "lastMsgTime": {
+          "__type__": "float"
+        },
+        "lastMsg": {
+          "__type__": "str",
+          "__length__": 3
+        },
+        "cSameMsg": {
+          "__type__": "int"
+        }
+      }
+    },
+    "pb-IF4DVBQpFg==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 11
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 13
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4pXkEeFg==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 9
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 12
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4JXkEaMA==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 11
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 13
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4cU00RUw==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 11
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 14
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4KXncCKA==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID",
+        "cMsgCount",
+        "lastMsgTime",
+        "lastMsg",
+        "cSameMsg"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 11
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 13
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        },
+        "cMsgCount": {
+          "__type__": "int"
+        },
+        "lastMsgTime": {
+          "__type__": "float"
+        },
+        "lastMsg": {
+          "__type__": "str",
+          "__length__": 2
+        },
+        "cSameMsg": {
+          "__type__": "int"
+        }
+      }
+    },
+    "pb-IF4hV2kBVg==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 10
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 15
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4MVFI6Bw==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 5
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 14
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4nUXo9XQ==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 5
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 13
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4hXkE4JA==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 11
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 13
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4OXmYMLA==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 11
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 12
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    },
+    "pb-IF4lUGoyMg==": {
+      "__type__": "dict",
+      "__keys__": [
+        "display_string",
+        "profiles",
+        "name",
+        "accountAge",
+        "registerOn",
+        "spamCount",
+        "lastSpam",
+        "totaltimeplayer",
+        "warnCount",
+        "lastWarned",
+        "verified",
+        "rejoincount",
+        "lastJoin",
+        "lastIP",
+        "deviceUUID"
+      ],
+      "__sample__": {
+        "display_string": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "profiles": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 11
+        },
+        "accountAge": {
+          "__type__": "str",
+          "__length__": 19
+        },
+        "registerOn": {
+          "__type__": "float"
+        },
+        "spamCount": {
+          "__type__": "int"
+        },
+        "lastSpam": {
+          "__type__": "float"
+        },
+        "totaltimeplayer": {
+          "__type__": "int"
+        },
+        "warnCount": {
+          "__type__": "int"
+        },
+        "lastWarned": {
+          "__type__": "float"
+        },
+        "verified": {
+          "__type__": "bool"
+        },
+        "rejoincount": {
+          "__type__": "int"
+        },
+        "lastJoin": {
+          "__type__": "float"
+        },
+        "lastIP": {
+          "__type__": "str",
+          "__length__": 12
+        },
+        "deviceUUID": {
+          "__type__": "str",
+          "__length__": 40
+        }
+      }
+    }
+  }
+}
+
+--------------------------------------------------------------------------------
+JSON: dist/ba_root/mods/playersdata/blacklist.json
+--------------------------------------------------------------------------------
+{
+  "__type__": "dict",
+  "__keys__": [
+    "ban",
+    "muted-ids",
+    "kick-vote-disabled"
+  ],
+  "__sample__": {
+    "ban": {
+      "__type__": "dict",
+      "__keys__": [
+        "ids",
+        "ips",
+        "deviceids"
+      ],
+      "__sample__": {
+        "ids": {
+          "__type__": "dict",
+          "__keys__": [
+            "pb-234"
+          ],
+          "__sample__": {
+            "pb-234": "dict"
+          }
+        },
+        "ips": {
+          "__type__": "dict",
+          "__keys__": [
+            "19.168.0.0.1"
+          ],
+          "__sample__": {
+            "19.168.0.0.1": "dict"
+          }
+        },
+        "deviceids": {
+          "__type__": "dict",
+          "__keys__": [
+            "sdfdsfwr3"
+          ],
+          "__sample__": {
+            "sdfdsfwr3": "dict"
+          }
+        }
+      }
+    },
+    "muted-ids": {
+      "__type__": "dict",
+      "__keys__": [
+        "pb-IF4iU0QaEw=="
+      ],
+      "__sample__": {
+        "pb-IF4iU0QaEw==": {
+          "__type__": "dict",
+          "__keys__": [
+            "till",
+            "reason"
+          ],
+          "__sample__": {
+            "till": "str",
+            "reason": "str"
+          }
+        }
+      }
+    },
+    "kick-vote-disabled": {
+      "__type__": "dict",
+      "__keys__": [
+        "pb-JiNJARBaXEFBVF9HFkNXXF1EF0ZaRlZE"
+      ],
+      "__sample__": {
+        "pb-JiNJARBaXEFBVF9HFkNXXF1EF0ZaRlZE": {
+          "__type__": "dict",
+          "__keys__": [
+            "till",
+            "reason"
+          ],
+          "__sample__": {
+            "till": "str",
+            "reason": "str"
+          }
+        }
+      }
+    }
+  }
+}
+
+--------------------------------------------------------------------------------
+JSON: dist/ba_root/mods/playersdata/custom.json
+--------------------------------------------------------------------------------
+{
+  "__type__": "dict",
+  "__keys__": [
+    "customtag",
+    "customeffects"
+  ],
+  "__sample__": {
+    "customtag": {
+      "__type__": "dict",
+      "__keys__": [
+        "pb-id",
+        "pb-45",
+        "pb-IF4TVWwZUQ==",
+        "pb-IF4JXmhZPA=="
+      ],
+      "__sample__": {
+        "pb-id": {
+          "__type__": "str",
+          "__length__": 7
+        },
+        "pb-45": {
+          "__type__": "str",
+          "__length__": 9
+        },
+        "pb-IF4TVWwZUQ==": {
+          "__type__": "str",
+          "__length__": 8
+        },
+        "pb-IF4JXmhZPA==": {
+          "__type__": "str",
+          "__length__": 3
+        }
+      }
+    },
+    "customeffects": {
+      "__type__": "dict",
+      "__keys__": [
+        "pb-IF4TVWwZUQ=="
+      ],
+      "__sample__": {
+        "pb-IF4TVWwZUQ==": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        }
+      }
+    }
+  }
+}
+
+--------------------------------------------------------------------------------
+JSON: dist/ba_root/mods/playersdata/roles.json
+--------------------------------------------------------------------------------
+{
+  "__type__": "dict",
+  "__keys__": [
+    "owner",
+    "admin",
+    "vip",
+    "smoothy",
+    "pros",
+    "top5",
+    "bypass-warn"
+  ],
+  "__sample__": {
+    "owner": {
+      "__type__": "dict",
+      "__keys__": [
+        "tag",
+        "tagcolor",
+        "commands",
+        "ids"
+      ],
+      "__sample__": {
+        "tag": {
+          "__type__": "str",
+          "__length__": 9
+        },
+        "tagcolor": {
+          "__type__": "list",
+          "__length__": 3,
+          "__sample__": "int"
+        },
+        "commands": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "ids": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        }
+      }
+    },
+    "admin": {
+      "__type__": "dict",
+      "__keys__": [
+        "tag",
+        "tagcolor",
+        "commands",
+        "ids"
+      ],
+      "__sample__": {
+        "tag": {
+          "__type__": "str",
+          "__length__": 7
+        },
+        "tagcolor": {
+          "__type__": "list",
+          "__length__": 3,
+          "__sample__": "int"
+        },
+        "commands": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "ids": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        }
+      }
+    },
+    "vip": {
+      "__type__": "dict",
+      "__keys__": [
+        "tag",
+        "tagcolor",
+        "commands",
+        "ids"
+      ],
+      "__sample__": {
+        "tag": {
+          "__type__": "str",
+          "__length__": 3
+        },
+        "tagcolor": {
+          "__type__": "list",
+          "__length__": 3,
+          "__sample__": "int"
+        },
+        "commands": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "ids": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        }
+      }
+    },
+    "smoothy": {
+      "__type__": "dict",
+      "__keys__": [
+        "tag",
+        "tagcolor",
+        "commands",
+        "ids"
+      ],
+      "__sample__": {
+        "tag": {
+          "__type__": "str",
+          "__length__": 7
+        },
+        "tagcolor": {
+          "__type__": "list",
+          "__length__": 3,
+          "__sample__": "int"
+        },
+        "commands": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "ids": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        }
+      }
+    },
+    "pros": {
+      "__type__": "dict",
+      "__keys__": [
+        "tag",
+        "tagcolor",
+        "commands",
+        "ids"
+      ],
+      "__sample__": {
+        "tag": {
+          "__type__": "str",
+          "__length__": 4
+        },
+        "tagcolor": {
+          "__type__": "list",
+          "__length__": 3,
+          "__sample__": "int"
+        },
+        "commands": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "ids": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        }
+      }
+    },
+    "top5": {
+      "__type__": "dict",
+      "__keys__": [
+        "tag",
+        "tagcolor",
+        "commands",
+        "ids"
+      ],
+      "__sample__": {
+        "tag": {
+          "__type__": "str",
+          "__length__": 4
+        },
+        "tagcolor": {
+          "__type__": "list",
+          "__length__": 3,
+          "__sample__": "int"
+        },
+        "commands": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "ids": {
+          "__type__": "list",
+          "__length__": 5,
+          "__sample__": "str"
+        }
+      }
+    },
+    "bypass-warn": {
+      "__type__": "dict",
+      "__keys__": [
+        "tag",
+        "tagcolor",
+        "commands",
+        "ids"
+      ],
+      "__sample__": {
+        "tag": {
+          "__type__": "str",
+          "__length__": 0
+        },
+        "tagcolor": {
+          "__type__": "list",
+          "__length__": 3,
+          "__sample__": "int"
+        },
+        "commands": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "ids": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        }
+      }
+    }
+  }
+}
+
+--------------------------------------------------------------------------------
+JSON: dist/ba_root/mods/playersdata/whitelist.json
+--------------------------------------------------------------------------------
+{
+  "__type__": "dict",
+  "__keys__": [
+    "pb-IF4VAk4a",
+    "pb-IF5VVxI5Fg=="
+  ],
+  "__sample__": {
+    "pb-IF4VAk4a": {
+      "__type__": "list",
+      "__length__": 1,
+      "__sample__": {
+        "__type__": "str",
+        "__length__": 13
+      }
+    },
+    "pb-IF5VVxI5Fg==": {
+      "__type__": "list",
+      "__length__": 1,
+      "__sample__": {
+        "__type__": "str",
+        "__length__": 29
+      }
+    }
+  }
+}
+
+--------------------------------------------------------------------------------
+JSON: dist/ba_root/mods/playersdata/subscribed_players.json
+--------------------------------------------------------------------------------
+{
+  "__type__": "dict",
+  "__keys__": [
+    "pb-IF41U2scIg==",
+    "pb-IF4IVFkKNA==",
+    "pb-IF4CKhYn",
+    "pb-IF4jF1NY",
+    "pb-IF4wVVk8Jg=="
+  ],
+  "__sample__": {
+    "pb-IF41U2scIg==": {
+      "__type__": "dict",
+      "__keys__": [
+        "subscribers"
+      ],
+      "__sample__": {
+        "subscribers": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        }
+      }
+    },
+    "pb-IF4IVFkKNA==": {
+      "__type__": "dict",
+      "__keys__": [
+        "subscribers",
+        "name"
+      ],
+      "__sample__": {
+        "subscribers": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 11
+        }
+      }
+    },
+    "pb-IF4CKhYn": {
+      "__type__": "dict",
+      "__keys__": [
+        "subscribers",
+        "name"
+      ],
+      "__sample__": {
+        "subscribers": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 11
+        }
+      }
+    },
+    "pb-IF4jF1NY": {
+      "__type__": "dict",
+      "__keys__": [
+        "subscribers",
+        "name"
+      ],
+      "__sample__": {
+        "subscribers": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 10
+        }
+      }
+    },
+    "pb-IF4wVVk8Jg==": {
+      "__type__": "dict",
+      "__keys__": [
+        "subscribers",
+        "name"
+      ],
+      "__sample__": {
+        "subscribers": {
+          "__type__": "list",
+          "__length__": 1,
+          "__sample__": "str"
+        },
+        "name": {
+          "__type__": "str",
+          "__length__": 10
+        }
+      }
+    }
+  }
+}
+
+--------------------------------------------------------------------------------
+JSON: dist/ba_root/mods/playersdata/subscriptions.json
+--------------------------------------------------------------------------------
+{
+  "__type__": "dict",
+  "__keys__": [
+    "jrz6Rg"
+  ],
+  "__sample__": {
+    "jrz6Rg": {
+      "__type__": "dict",
+      "__keys__": [
+        "endpoint",
+        "expirationTime",
+        "keys"
+      ],
+      "__sample__": {
+        "endpoint": {
+          "__type__": "str",
+          "__length__": 412
+        },
+        "expirationTime": {
+          "__type__": "NoneType"
+        },
+        "keys": {
+          "__type__": "dict",
+          "__keys__": [
+            "p256dh",
+            "auth"
+          ],
+          "__sample__": {
+            "p256dh": "str",
+            "auth": "str"
+          }
+        }
+      }
+    }
+  }
+}
+
+--------------------------------------------------------------------------------
+JSON: dist/ba_root/mods/serverdata/data.json
+--------------------------------------------------------------------------------
+ERROR: JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+--------------------------------------------------------------------------------
+JSON: dist/ba_root/mods/stats/stats.json
+--------------------------------------------------------------------------------
+{
+  "__type__": "dict",
+  "__keys__": [
+    "startDate",
+    "stats"
+  ],
+  "__sample__": {
+    "startDate": {
+      "__type__": "str",
+      "__length__": 10
+    },
+    "stats": {
+      "__type__": "dict",
+      "__keys__": [
+        "pb-IF4VAk4a",
+        "pb-IF4JXmhZPA==",
+        "pb-IF4yUlQ7Cw==",
+        "pb-IF4pXkEeFg==",
+        "pb-IF4cU00RUw==",
+        "pb-IF4KXncCKA==",
+        "pb-IF4MVFI6Bw=="
+      ],
+      "__sample__": {
+        "pb-IF4VAk4a": {
+          "__type__": "dict",
+          "__keys__": [
+            "rank",
+            "name",
+            "scores",
+            "total_damage",
+            "kills",
+            "deaths",
+            "games",
+            "kd",
+            "avg_score",
+            "aid",
+            "last_seen"
+          ],
+          "__sample__": {
+            "rank": "int",
+            "name": "str",
+            "scores": "int",
+            "total_damage": "float",
+            "kills": "int",
+            "deaths": "int",
+            "games": "int",
+            "kd": "float",
+            "avg_score": "float",
+            "aid": "str",
+            "last_seen": "str"
+          }
+        },
+        "pb-IF4JXmhZPA==": {
+          "__type__": "dict",
+          "__keys__": [
+            "rank",
+            "name",
+            "scores",
+            "total_damage",
+            "kills",
+            "deaths",
+            "games",
+            "kd",
+            "avg_score",
+            "last_seen",
+            "aid"
+          ],
+          "__sample__": {
+            "rank": "int",
+            "name": "str",
+            "scores": "int",
+            "total_damage": "float",
+            "kills": "int",
+            "deaths": "int",
+            "games": "int",
+            "kd": "float",
+            "avg_score": "float",
+            "last_seen": "str",
+            "aid": "str"
+          }
+        },
+        "pb-IF4yUlQ7Cw==": {
+          "__type__": "dict",
+          "__keys__": [
+            "rank",
+            "name",
+            "scores",
+            "total_damage",
+            "kills",
+            "deaths",
+            "games",
+            "kd",
+            "avg_score",
+            "last_seen",
+            "aid"
+          ],
+          "__sample__": {
+            "rank": "int",
+            "name": "str",
+            "scores": "int",
+            "total_damage": "float",
+            "kills": "int",
+            "deaths": "int",
+            "games": "int",
+            "kd": "float",
+            "avg_score": "float",
+            "last_seen": "str",
+            "aid": "str"
+          }
+        },
+        "pb-IF4pXkEeFg==": {
+          "__type__": "dict",
+          "__keys__": [
+            "rank",
+            "name",
+            "scores",
+            "total_damage",
+            "kills",
+            "deaths",
+            "games",
+            "kd",
+            "avg_score",
+            "last_seen",
+            "aid"
+          ],
+          "__sample__": {
+            "rank": "int",
+            "name": "str",
+            "scores": "int",
+            "total_damage": "float",
+            "kills": "int",
+            "deaths": "int",
+            "games": "int",
+            "kd": "float",
+            "avg_score": "float",
+            "last_seen": "str",
+            "aid": "str"
+          }
+        },
+        "pb-IF4cU00RUw==": {
+          "__type__": "dict",
+          "__keys__": [
+            "rank",
+            "name",
+            "scores",
+            "total_damage",
+            "kills",
+            "deaths",
+            "games",
+            "kd",
+            "avg_score",
+            "last_seen",
+            "aid"
+          ],
+          "__sample__": {
+            "rank": "int",
+            "name": "str",
+            "scores": "int",
+            "total_damage": "float",
+            "kills": "int",
+            "deaths": "int",
+            "games": "int",
+            "kd": "float",
+            "avg_score": "float",
+            "last_seen": "str",
+            "aid": "str"
+          }
+        },
+        "pb-IF4KXncCKA==": {
+          "__type__": "dict",
+          "__keys__": [
+            "rank",
+            "name",
+            "scores",
+            "total_damage",
+            "kills",
+            "deaths",
+            "games",
+            "kd",
+            "avg_score",
+            "last_seen",
+            "aid"
+          ],
+          "__sample__": {
+            "rank": "int",
+            "name": "str",
+            "scores": "int",
+            "total_damage": "float",
+            "kills": "int",
+            "deaths": "int",
+            "games": "int",
+            "kd": "float",
+            "avg_score": "float",
+            "last_seen": "str",
+            "aid": "str"
+          }
+        },
+        "pb-IF4MVFI6Bw==": {
+          "__type__": "dict",
+          "__keys__": [
+            "rank",
+            "name",
+            "scores",
+            "total_damage",
+            "kills",
+            "deaths",
+            "games",
+            "kd",
+            "avg_score",
+            "last_seen",
+            "aid"
+          ],
+          "__sample__": {
+            "rank": "int",
+            "name": "str",
+            "scores": "int",
+            "total_damage": "float",
+            "kills": "int",
+            "deaths": "int",
+            "games": "int",
+            "kd": "float",
+            "avg_score": "float",
+            "last_seen": "str",
+            "aid": "str"
+          }
+        }
+      }
+    }
+  }
+}
+
+--------------------------------------------------------------------------------
+JSON: dist/ba_root/mods/setting.json
+--------------------------------------------------------------------------------
+{
+  "__type__": "dict",
+  "__keys__": [
+    "Anti-IdRevealer",
+    "ChatCommands",
+    "HostDeviceName",
+    "HostName",
+    "KickVoteMsgType",
+    "ScoreScreenAnnouncement",
+    "ShowKickVoteStarterName",
+    "StumbledScoreScreen",
+    "WarnCooldownMinutes",
+    "afk_remover",
+    "afterWarnKickMsg",
+    "allowInGameChat",
+    "allowTeamChat",
+    "allowVotes",
+    "autoNightMode",
+    "autoTeamBalance",
+    "ballistica_web",
+    "character_chooser",
+    "colorful_explosions",
+    "colorfullMap",
+    "contributeData",
+    "coopModeWithLessPlayers",
+    "custom_characters",
+    "discordWebHook",
+    "discordbot",
+    "elPatronPowerups",
+    "enableHitTexts",
+    "enableTagAnimation",
+    "enableTop5effects",
+    "enableeffects"
+  ],
+  "__sample__": {
+    "Anti-IdRevealer": {
+      "__type__": "bool"
+    },
+    "ChatCommands": {
+      "__type__": "dict",
+      "__keys__": [
+        "BrodcastCommand"
+      ],
+      "__sample__": {
+        "BrodcastCommand": {
+          "__type__": "bool"
+        }
+      }
+    },
+    "HostDeviceName": {
+      "__type__": "str",
+      "__length__": 4
+    },
+    "HostName": {
+      "__type__": "str",
+      "__length__": 5
+    },
+    "KickVoteMsgType": {
+      "__type__": "str",
+      "__length__": 4
+    },
+    "ScoreScreenAnnouncement": {
+      "__type__": "dict",
+      "__keys__": [
+        "enable",
+        "msg"
+      ],
+      "__sample__": {
+        "enable": {
+          "__type__": "bool"
+        },
+        "msg": {
+          "__type__": "list",
+          "__length__": 3,
+          "__sample__": "str"
+        }
+      }
+    },
+    "ShowKickVoteStarterName": {
+      "__type__": "bool"
+    },
+    "StumbledScoreScreen": {
+      "__type__": "bool"
+    },
+    "WarnCooldownMinutes": {
+      "__type__": "int"
+    },
+    "afk_remover": {
+      "__type__": "dict",
+      "__keys__": [
+        "enable",
+        "ingame_idle_time_in_secs",
+        "kick_idle_from_lobby",
+        "lobby_idle_time_in_secs"
+      ],
+      "__sample__": {
+        "enable": {
+          "__type__": "bool"
+        },
+        "ingame_idle_time_in_secs": {
+          "__type__": "int"
+        },
+        "kick_idle_from_lobby": {
+          "__type__": "bool"
+        },
+        "lobby_idle_time_in_secs": {
+          "__type__": "int"
+        }
+      }
+    },
+    "afterWarnKickMsg": {
+      "__type__": "str",
+      "__length__": 43
+    },
+    "allowInGameChat": {
+      "__type__": "bool"
+    },
+    "allowTeamChat": {
+      "__type__": "bool"
+    },
+    "allowVotes": {
+      "__type__": "bool"
+    },
+    "autoNightMode": {
+      "__type__": "dict",
+      "__keys__": [
+        "enable",
+        "endTime",
+        "fireflies",
+        "fireflies_random_color",
+        "startTime"
+      ],
+      "__sample__": {
+        "enable": {
+          "__type__": "bool"
+        },
+        "endTime": {
+          "__type__": "str",
+          "__length__": 5
+        },
+        "fireflies": {
+          "__type__": "bool"
+        },
+        "fireflies_random_color": {
+          "__type__": "bool"
+        },
+        "startTime": {
+          "__type__": "str",
+          "__length__": 5
+        }
+      }
+    },
+    "autoTeamBalance": {
+      "__type__": "bool"
+    },
+    "ballistica_web": {
+      "__type__": "dict",
+      "__keys__": [
+        "enable",
+        "server_password",
+        "discord_link"
+      ],
+      "__sample__": {
+        "enable": {
+          "__type__": "bool"
+        },
+        "server_password": {
+          "__type__": "str",
+          "__length__": 28
+        },
+        "discord_link": {
+          "__type__": "str",
+          "__length__": 26
+        }
+      }
+    },
+    "character_chooser": {
+      "__type__": "dict",
+      "__keys__": [
+        "enable"
+      ],
+      "__sample__": {
+        "enable": {
+          "__type__": "bool"
+        }
+      }
+    },
+    "colorful_explosions": {
+      "__type__": "dict",
+      "__keys__": [
+        "enable"
+      ],
+      "__sample__": {
+        "enable": {
+          "__type__": "bool"
+        }
+      }
+    },
+    "colorfullMap": {
+      "__type__": "bool"
+    },
+    "contributeData": {
+      "__type__": "bool"
+    },
+    "coopModeWithLessPlayers": {
+      "__type__": "dict",
+      "__keys__": [
+        "enable",
+        "minPlayerToExitCoop"
+      ],
+      "__sample__": {
+        "enable": {
+          "__type__": "bool"
+        },
+        "minPlayerToExitCoop": {
+          "__type__": "int"
+        }
+      }
+    },
+    "custom_characters": {
+      "__type__": "dict",
+      "__keys__": [
+        "enable"
+      ],
+      "__sample__": {
+        "enable": {
+          "__type__": "bool"
+        }
+      }
+    },
+    "discordWebHook": {
+      "__type__": "dict",
+      "__keys__": [
+        "enable",
+        "webhookURL"
+      ],
+      "__sample__": {
+        "enable": {
+          "__type__": "bool"
+        },
+        "webhookURL": {
+          "__type__": "str",
+          "__length__": 65
+        }
+      }
+    },
+    "discordbot": {
+      "__type__": "dict",
+      "__keys__": [
+        "enable",
+        "liveChat",
+        "liveStatsChannelID",
+        "logsChannelID",
+        "token",
+        "prefix",
+        "guildID",
+        "notifyChannelID",
+        "complaintChannelID",
+        "token_file",
+        "refreshInterval",
+        "statsRefreshInterval",
+        "channelHistoryLimit",
+        "allowed_user_ids",
+        "messages",
+        "state_file",
+        "maxPlayers",
+        "serverConnect",
+        "ui",
+        "logs",
+        "commandConfig"
+      ],
+      "__sample__": {
+        "enable": {
+          "__type__": "bool"
+        },
+        "liveChat": {
+          "__type__": "bool"
+        },
+        "liveStatsChannelID": {
+          "__type__": "int"
+        },
+        "logsChannelID": {
+          "__type__": "int"
+        },
+        "token": {
+          "__type__": "str",
+          "__length__": 0
+        },
+        "prefix": {
+          "__type__": "str",
+          "__length__": 2
+        },
+        "guildID": {
+          "__type__": "int"
+        },
+        "notifyChannelID": {
+          "__type__": "int"
+        },
+        "complaintChannelID": {
+          "__type__": "int"
+        },
+        "token_file": {
+          "__type__": "str",
+          "__length__": 41
+        },
+        "refreshInterval": {
+          "__type__": "int"
+        },
+        "statsRefreshInterval": {
+          "__type__": "int"
+        },
+        "channelHistoryLimit": {
+          "__type__": "int"
+        },
+        "allowed_user_ids": {
+          "__type__": "list",
+          "__length__": 0,
+          "__sample__": null
+        },
+        "messages": {
+          "__type__": "dict",
+          "__keys__": [
+            "login",
+            "live_stats_header",
+            "players_header",
+            "no_players",
+            "current_next_template",
+            "live_stats_placeholder",
+            "live_chat_header",
+            "chat_empty",
+            "chat_disabled"
+          ],
+          "__sample__": {
+            "login": "str",
+            "live_stats_header": "str",
+            "players_header": "str",
+            "no_players": "str",
+            "current_next_template": "str",
+            "live_stats_placeholder": "str",
+            "live_chat_header": "str",
+            "chat_empty": "str",
+            "chat_disabled": "str"
+          }
+        },
+        "state_file": {
+          "__type__": "str",
+          "__length__": 46
+        },
+        "maxPlayers": {
+          "__type__": "int"
+        },
+        "serverConnect": {
+          "__type__": "dict",
+          "__keys__": [
+            "host",
+            "port"
+          ],
+          "__sample__": {
+            "host": "str",
+            "port": "int"
+          }
+        },
+        "ui": {
+          "__type__": "dict",
+          "__keys__": [
+            "brand",
+            "dashboard",
+            "live_messages",
+            "buttons",
+            "modals",
+            "dialogs",
+            "colors",
+            "player_line",
+            "join_block_language",
+            "recent_block_language"
+          ],
+          "__sample__": {
+            "brand": "str",
+            "dashboard": "dict",
+            "live_messages": "dict",
+            "buttons": "dict",
+            "modals": "dict",
+            "dialogs": "dict",
+            "colors": "dict",
+            "player_line": "str",
+            "join_block_language": "str",
+            "recent_block_language": "str"
+          }
+        },
+        "logs": {
+          "__type__": "dict",
+          "__keys__": [
+            "enabled",
+            "batchInterval",
+            "maxEventsPerBatch",
+            "maxMessageCharacters",
+            "showPlayerIdentifiers",
+            "showDeviceIdentifiers",
+            "showIPAddresses",
+            "showChat",
+            "showPlayerJoin",
+            "showPlayerLeave",
+            "showModeration",
+            "showServerEvents",
+            "showDiscordBridge",
+            "showUnknownEvents",
+            "includeTimestamp",
+            "icons",
+            "labels",
+            "title",
+            "footer",
+            "colors"
+          ],
+          "__sample__": {
+            "enabled": "bool",
+            "batchInterval": "int",
+            "maxEventsPerBatch": "int",
+            "maxMessageCharacters": "int",
+            "showPlayerIdentifiers": "bool",
+            "showDeviceIdentifiers": "bool",
+            "showIPAddresses": "bool",
+            "showChat": "bool",
+            "showPlayerJoin": "bool",
+            "showPlayerLeave": "bool",
+            "showModeration": "bool",
+            "showServerEvents": "bool",
+            "showDiscordBridge": "bool",
+            "showUnknownEvents": "bool",
+            "includeTimestamp": "bool",
+            "icons": "dict",
+            "labels": "dict",
+            "title": "str",
+            "footer": "str",
+            "colors": "dict"
+          }
+        },
+        "commandConfig": {
+          "__type__": "dict",
+          "__keys__": [
+            "enabled",
+            "text",
+            "categories"
+          ],
+          "__sample__": {
+            "enabled": "bool",
+            "text": "dict",
+            "categories": "dict"
+          }
+        }
+      }
+    },
+    "elPatronPowerups": {
+      "__type__": "dict",
+      "__keys__": [
+        "Quantity",
+        "enable",
+        "settings"
+      ],
+      "__sample__": {
+        "Quantity": {
+          "__type__": "dict",
+          "__keys__": [
+            "Curse",
+            "Fire Bombs",
+            "Fly Bombs",
+            "Goodbye",
+            "Healing Damage",
+            "Health",
+            "Ice Bombs",
+            "Ice Man",
+            "Impact Bombs",
+            "Impairment Bombs",
+            "Mine Bombs",
+            "Punch",
+            "Shield",
+            "Speed",
+            "Sticky Bombs",
+            "Tank Shield",
+            "Triple"
+          ],
+          "__sample__": {
+            "Curse": "int",
+            "Fire Bombs": "int",
+            "Fly Bombs": "int",
+            "Goodbye": "int",
+            "Healing Damage": "int",
+            "Health": "int",
+            "Ice Bombs": "int",
+            "Ice Man": "int",
+            "Impact Bombs": "int",
+            "Impairment Bombs": "int",
+            "Mine Bombs": "int",
+            "Punch": "int",
+            "Shield": "int",
+            "Speed": "int",
+            "Sticky Bombs": "int",
+            "Tank Shield": "int",
+            "Triple": "int"
+          }
+        },
+        "enable": {
+          "__type__": "bool"
+        },
+        "settings": {
+          "__type__": "dict",
+          "__keys__": [
+            "Healing Damage PTG",
+            "Powers Gravity",
+            "Powerup Name",
+            "Powerup Scale",
+            "Powerup Style",
+            "Powerup Time",
+            "Powerup With Shield",
+            "Powerups",
+            "Tank Shield PTG"
+          ],
+          "__sample__": {
+            "Healing Damage PTG": "int",
+            "Powers Gravity": "bool",
+            "Powerup Name": "bool",
+            "Powerup Scale": "int",
+            "Powerup Style": "str",
+            "Powerup Time": "bool",
+            "Powerup With Shield": "bool",
+            "Powerups": "dict",
+            "Tank Shield PTG": "int"
+          }
+        }
+      }
+    },
+    "enableHitTexts": {
+      "__type__": "bool"
+    },
+    "enableTagAnimation": {
+      "__type__": "bool"
+    },
+    "enableTop5effects": {
+      "__type__": "bool"
+    },
+    "enableeffects": {
+      "__type__": "bool"
+    }
+  }
+}
+
+================================================================================
+CURRENT DISCORD COMMANDS
+================================================================================
+  help
+  status
+  players
+  join
+  panel

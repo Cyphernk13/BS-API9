@@ -1,15 +1,12 @@
 # ba_meta require api 8
 from __future__ import annotations
 
-import random
-from typing import TYPE_CHECKING, Any, Callable, Sequence
-
 _sp_ = ('\n')
 
 import babase
 import bauiv1 as bui
-import bascenev1 as bs
 
+from bauiv1lib.profile import browser
 from bascenev1lib.actor import bomb
 from bascenev1lib.actor import powerupbox as pupbox
 from bascenev1lib.actor.spazbot import SpazBot
@@ -500,6 +497,53 @@ def percentage_health_damage():
 
 # === Modify class ===
 
+class NewProfileBrowserWindow(browser.ProfileBrowserWindow):
+    def __init__(self,
+                 transition: str = 'in_right',
+                 in_main_menu: bool = True,
+                 selected_profile: str = None,
+                 origin_widget: bui.Widget = None):
+        super().__init__(transition, in_main_menu, selected_profile,
+                         origin_widget)
+
+        self.session = bs.get_foreground_host_session()
+        uiscale = bui.app.ui_v1.uiscale
+        width = (100 if uiscale is
+                        babase.UIScale.SMALL else -14)
+        size = 50
+        position = (width * 1.65, 300)
+
+        if isinstance(self.session, MainMenuSession):
+            self.button = bui.buttonwidget(parent=self._root_widget,
+                                           autoselect=True, position=position,
+                                           size=(size, size),
+                                           button_type='square',
+                                           label='',
+                                           on_activate_call=babase.Call(
+                                               self.powerupmanager_window))
+
+            size = size * 0.60
+            self.image = bui.imagewidget(parent=self._root_widget,
+                                         size=(size, size),
+                                         draw_controller=self.button,
+                                         position=(
+                                         position[0] + 10.5, position[1] + 17),
+                                         texture=bs.gettexture('powerupSpeed'))
+
+            self.text = bui.textwidget(parent=self._root_widget,
+                                       position=(
+                                       position[0] + 25, position[1] + 10),
+                                       size=(0, 0), scale=0.45,
+                                       color=(0.7, 0.9, 0.7, 1.0),
+                                       draw_controller=self.button, maxwidth=60,
+                                       text=(f"Ultimate Powerup {_sp_}Manager"),
+                                       h_align='center', v_align='center')
+
+    def powerupmanager_window(self):
+        bui.containerwidget(edit=self._root_widget, transition='out_left')
+        PowerupManagerWindow()
+
+
 class NewPowerupBoxFactory(pupbox.PowerupBoxFactory):
     def __init__(self) -> None:
         super().__init__()
@@ -770,21 +814,14 @@ def _pbx_(self, position: Sequence[float] = (0.0, 1.0, 0.0),
                    {0: 0.017, 0.4: 0.017, 0.5: 0.01 * scale})
 
         if colors_name:
-            bs.animate_array(
-                self.texts[type],
-                'color',
-                3,
-                {
-                    0: (1, 0, 0),
-                    0.2: (1, 0.5, 0),
-                    0.4: (1, 1, 0),
-                    0.6: (0, 1, 0),
-                    0.8: (0, 1, 1),
-                    1.0: (1, 0, 1),
-                    1.2: (1, 0, 0),
-                },
-                loop=True,
-            )
+            bs.animate_array(self.texts[type], 'color', 3,
+                             {0: (1, 0, 0),
+                              0.2: (1, 0.5, 0),
+                              0.4: (1, 1, 0),
+                              0.6: (0, 1, 0),
+                              0.8: (0, 1, 1),
+                              1.0: (1, 0, 1),
+                              1.2: (1, 0, 0)})
 
     def update_time(time):
         if self.texts['Time'].exists():
@@ -815,7 +852,7 @@ def _pbx_(self, position: Sequence[float] = (0.0, 1.0, 0.0),
         self.node.connectattr('position', self.shield, 'position')
         bs.animate_array(self.shield, 'color', 3,
                          {0: (2, 0, 0), 0.5: (0, 2, 0), 1: (0, 1, 6),
-                          1.5: (2, 0, 0)}, loop=True)
+                          1.5: (2, 0, 0)}, True)
 
     if config['Powerup Name']:
         util_text('Name', self.poweruptype, scale=1.2,
@@ -2611,9 +2648,11 @@ class PowerupManagerWindow(PopupWindow):
 
     def _back(self):
         bui.containerwidget(edit=self._root_widget, transition='out_left')
+        browser.ProfileBrowserWindow()
 
 
 def enable():
+    # browser.ProfileBrowserWindow = NewProfileBrowserWindow
     pupbox.PowerupBoxFactory = NewPowerupBoxFactory
     pupbox.PowerupBox.__init__ = _pbx_
     Bomb.__init__ = _bomb_init

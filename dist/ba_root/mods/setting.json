@@ -1,189 +1,1139 @@
 {
-  "Anti-IdRevealer": false,
-  "ChatCommands": {
-    "BrodcastCommand": true
-  },
-  "HostDeviceName": "v1.4",
-  "HostName": "BCSv2",
-  "KickVoteMsgType": "chat",
-  "ScoreScreenAnnouncement": {
-    "enable": true,
-    "msg": [
-      "click stats button to join discord",
-      "watch hey smoothy youtube channel",
-      "downlaod new mods from discord"
-    ]
-  },
-  "ShowKickVoteStarterName": true,
-  "StumbledScoreScreen": true,
-  "WarnCooldownMinutes": 30,
-  "afk_remover": {
-    "enable": true,
-    "ingame_idle_time_in_secs": 60,
-    "kick_idle_from_lobby": true,
-    "lobby_idle_time_in_secs": 60
-  },
-  "afterWarnKickMsg": "Enough warnings, Goodbye have a nice day :)",
-  "allowInGameChat": true,
-  "allowTeamChat": true,
-  "allowVotes": true,
-  "autoNightMode": {
-    "enable": false,
-    "endTime": "06:00",
-    "fireflies": false,
-    "fireflies_random_color": false,
-    "startTime": "18:30"
-  },
-  "autoTeamBalance": true,
-  "ballistica_web": {
-    "enable": true,
-    "server_password": "my_secerT_password_very_hard",
-    "discord_link": "https://discord.gg/ucyaesh"
-  },
-  "character_chooser": {
-    "enable": true
-  },
-  "colorful_explosions": {
-    "enable": true
-  },
-  "colorfullMap": false,
-  "contributeData": true,
-  "coopModeWithLessPlayers": {
-    "enable": false,
-    "minPlayerToExitCoop": 3
-  },
-  "custom_characters": {
-    "enable": true
-  },
-  "discordWebHook": {
-    "enable": false,
-    "webhookURL": "https://discord.com/api/webhooks/82649239/e7s0zyBJIuczXL7_CGSO5WM"
-  },
-  "discordbot": {
-    "enable": false,
-    "liveChat": true,
-    "liveStatsChannelID": 925440043672285200,
-    "logsChannelID": 925440079843958800,
-    "token": "<secret-token-here>"
-  },
-  "elPatronPowerups": {
-    "Quantity": {
-      "Curse": 1,
-      "Fire Bombs": 3,
-      "Fly Bombs": 0,
-      "Goodbye": 0,
-      "Healing Damage": 0,
-      "Health": 1,
-      "Ice Bombs": 0,
-      "Ice Man": 0,
-      "Impact Bombs": 3,
-      "Impairment Bombs": 2,
-      "Mine Bombs": 2,
-      "Punch": 0,
-      "Shield": 0,
-      "Speed": 0,
-      "Sticky Bombs": 3,
-      "Tank Shield": 0,
-      "Triple": 3
+    "Anti-IdRevealer": false,
+    "ChatCommands": {
+        "BrodcastCommand": true
     },
-    "enable": false,
-    "settings": {
-      "Healing Damage PTG": 72,
-      "Powers Gravity": true,
-      "Powerup Name": true,
-      "Powerup Scale": 1,
-      "Powerup Style": "Auto",
-      "Powerup Time": false,
-      "Powerup With Shield": true,
-      "Powerups": {
-        "Curse": 1,
-        "Fire Bombs": 3,
-        "Fly Bombs": 3,
-        "Goodbye": 2,
-        "Healing Damage": 1,
-        "Health": 1,
-        "Ice Bombs": 3,
-        "Ice Man": 1,
-        "Impact Bombs": 3,
-        "Impairment Bombs": 2,
-        "Mine Bombs": 2,
-        "Punch": 3,
-        "Shield": 2,
-        "Speed": 2,
-        "Sticky Bombs": 3,
-        "Tank Shield": 1,
-        "Triple": 3
-      },
-      "Tank Shield PTG": 96
+    "HostDeviceName": "v1.4",
+    "HostName": "⚔CYPHER⚔️",
+    "KickVoteMsgType": "chat",
+    "ScoreScreenAnnouncement": {
+        "enable": true,
+        "msg": [
+            "WELCOME TO CYPHER EPIC DUELS",
+            "JOIN OUR DISCORD : Cypher Official :)",
+            "TYPE (/vp) TO KNOW VOTING PLAYLIST",
+            "TYPE (/acl) TO KNOW ADMIN COMMANDS",
+            "TYPE (/coinhelp) TO KNOW HOW TO BUY EFFECTS AND MANY MORE..",
+            "TYPE (/vcl) TO KNOW VIP COMMANDS",
+            "TYPE END TO START END VOTE",
+            "START MSG WITH PREFIX .(dot) TO SEND IN GAME POPUP MSG",
+            "TYPE NV TO START NV VOTE",
+            "TYPE (/vp) TO KNOW VOTING PLAYLIST",
+            "TYPE (/cs) TO FIND OUT HOW TO COMPLAINT IN DISCORD SERVER FROM GAME",
+            "TYPE (/dclink) TO KNOW HOW TO LINK PBID TO DISCORD-ID & GET REWARDs",
+            "START MSG WITH PREFIX ,(comma) TO SEND MSG TO TEAMMATES",
+            "PLEASE RESPECT OTHER PLAYERS",
+            "JOIN OUR DISCORD SERVER BY CLICKING ON STATS BUTTON",
+            "ANY FORM OF ABUSE WLL NOT BE TOLERATED",
+            "TYPE (/shop effects) TO KNOW AVILABLE EFFECTS"
+        ]
+    },
+    "ShowKickVoteStarterName": true,
+    "StumbledScoreScreen": false,
+    "WarnCooldownMinutes": 30,
+    "afk_remover": {
+        "enable": false,
+        "ingame_idle_time_in_secs": 60,
+        "kick_idle_from_lobby": false,
+        "lobby_idle_time_in_secs": 60
+    },
+    "afterWarnKickMsg": "Enough warnings, Goodbye have a nice day :)",
+    "allowInGameChat": true,
+    "allowTeamChat": true,
+    "allowVotes": true,
+    "autoNightMode": {
+        "enable": false,
+        "endTime": "06:00",
+        "fireflies": false,
+        "fireflies_random_color": false,
+        "startTime": "18:30"
+    },
+    "autoTeamBalance": false,
+    "ballistica_web": {
+        "enable": false,
+        "server_password": "my_secerT_password_very_hard",
+        "discord_link": "https://discord.gg/ucyaesh"
+    },
+    "character_chooser": {
+        "enable": true
+    },
+    "colorful_explosions": {
+        "enable": true
+    },
+    "colorfullMap": false,
+    "contributeData": true,
+    "coopModeWithLessPlayers": {
+        "enable": false,
+        "minPlayerToExitCoop": 3
+    },
+    "custom_characters": {
+        "enable": true
+    },
+    "discordWebHook": {
+        "enable": false,
+        "webhookURL": "https://discord.com/api/webhooks/82649239/e7s0zyBJIuczXL7_CGSO5WM"
+    },
+    "discordbot": {
+        "enable": true,
+        "liveChat": true,
+        "liveStatsChannelID": 1552398821605122108,
+        "logsChannelID": 1552399056595320943,
+        "token": "",
+        "prefix": "c!",
+        "guildID": 1551945510741475408,
+        "notifyChannelID": 1552406982936231976,
+        "complaintChannelID": 1552406852199907408,
+        "token_file": "~/.config/cypher-epic-duels/discord_token",
+        "refreshInterval": 10,
+        "statsRefreshInterval": 8,
+        "channelHistoryLimit": 20,
+        "allowed_user_ids": [],
+        "messages": {
+            "login": "Discord bot logged in as: {name}, {id}",
+            "live_stats_header": "***Live Stats :***",
+            "players_header": "***Players in server***",
+            "no_players": "```No one```",
+            "current_next_template": "\n\n***Current: *** {current}\n ***Next: ***{next}\n\n.",
+            "live_stats_placeholder": "msg reserved for live stats",
+            "live_chat_header": "***Live Chat***",
+            "chat_empty": "```Empty```\n",
+            "chat_disabled": "```disabled```"
+        },
+        "state_file": "~/.config/cypher-epic-duels/discord_state.json",
+        "maxPlayers": 5,
+        "serverConnect": {
+            "host": "130.210.4.26",
+            "port": 43210
+        },
+        "ui": {
+            "brand": "CYPHER DUELS",
+            "dashboard": {
+                "title": "⚔️ {brand}",
+                "subtitle": "LIVE SERVER STATUS",
+                "online": "🟢 ONLINE",
+                "offline": "🔴 OFFLINE",
+                "players_field": "👥 Players {count}/{max}",
+                "no_players": "```text\nNo active players\n```",
+                "current_game_field": "🎮 Current Game",
+                "next_game_field": "⏭️ Next Game",
+                "map_label": "Map",
+                "mode_label": "Mode",
+                "connection_field": "🔗 Server Address",
+                "connection_hint": "Long-press the address to copy it.",
+                "connection_format": "{host}:{port}",
+                "footer": "CYPHER DUELS • Live Status • Auto-refresh {interval}s",
+                "waiting": "Waiting for game...",
+                "next_unavailable": "Not available"
+            },
+            "live_messages": {
+                "title": "💬 Live Messages",
+                "empty": "```text\nNo recent messages\n```",
+                "disabled": "```text\nLive chat is disabled\n```",
+                "footer": "Recent in-game messages"
+            },
+            "buttons": {
+                "refresh": "🔄 Refresh",
+                "restart": "🔴 Restart",
+                "recent": "📜 Recent Msg",
+                "insert": "✉️ Insert Msg",
+                "confirm_restart": "Confirm Restart",
+                "cancel": "Cancel"
+            },
+            "modals": {
+                "broadcast_title": "Send In-Game Message",
+                "broadcast_label": "Message",
+                "broadcast_placeholder": "Type the message players should see..."
+            },
+            "dialogs": {
+                "restart_title": "⚠️ Restart Cypher Duels?",
+                "restart_body": "This will restart the BombSquad server.",
+                "not_authorized": "⛔ You are not authorized to use this control.",
+                "restart_requested": "🔄 Server restart requested.",
+                "cancelled": "Cancelled.",
+                "refreshed": "✅ Refreshed.",
+                "message_sent": "✅ Message sent to the server.",
+                "message_empty": "⚠️ The message cannot be empty.",
+                "players_title": "👥 Players",
+                "recent_title": "📜 Recent In-Game Messages",
+                "status_error": "⚠️ Unable to update the dashboard right now."
+            },
+            "colors": {
+                "online": 5763719,
+                "offline": 15548997,
+                "accent": 9133302,
+                "messages": 5793266,
+                "warning": 16705372
+            },
+            "player_line": "{index}. {name}",
+            "join_block_language": "text",
+            "recent_block_language": "text"
+        },
+        "logs": {
+            "enabled": true,
+            "batchInterval": 3,
+            "maxEventsPerBatch": 10,
+            "maxMessageCharacters": 1800,
+            "showPlayerIdentifiers": true,
+            "showDeviceIdentifiers": true,
+            "showIPAddresses": true,
+            "showChat": true,
+            "showPlayerJoin": true,
+            "showPlayerLeave": true,
+            "showModeration": true,
+            "showServerEvents": true,
+            "showDiscordBridge": true,
+            "showUnknownEvents": true,
+            "includeTimestamp": true,
+            "icons": {
+                "server": "🚀",
+                "join": "🟢",
+                "leave": "🔴",
+                "chat": "💬",
+                "discord": "📣",
+                "moderation": "🛡️",
+                "info": "🧾",
+                "warning": "⚠️",
+                "event": "📝"
+            },
+            "labels": {
+                "serverStarted": "SERVER STARTED",
+                "playerJoined": "PLAYER JOIN",
+                "playerLeft": "PLAYER LEFT",
+                "chat": "CHAT",
+                "discordBridge": "DISCORD → GAME",
+                "moderation": "MODERATION",
+                "playerInfo": "PLAYER INFO",
+                "event": "EVENT"
+            },
+            "title": "",
+            "footer": "",
+            "colors": {
+                "server": 5763719,
+                "join": 5763719,
+                "leave": 15548997,
+                "chat": 5793266,
+                "discord": 9133302,
+                "moderation": 16705372,
+                "info": 10070709,
+                "event": 10070709
+            }
+        },
+        "commandConfig": {
+            "enabled": true,
+            "text": {
+                "helpTitle": "⚔️ CYPHER DUELS • COMMANDS",
+                "helpDescription": "Use `{prefix}help <category>` to browse a category.",
+                "prefixLabel": "PREFIX",
+                "availableLabel": "AVAILABLE",
+                "categoriesLabel": "CATEGORIES",
+                "implemented": "✅",
+                "planned": "🔒",
+                "categoryTitle": "📂 {category}",
+                "categoryNotFound": "No category named `{category}` exists.",
+                "commandNotFound": "No command named `{command}` exists in `{category}`.",
+                "staffOnly": "⛔ This command is restricted to staff.",
+                "noCommands": "No commands are defined in this category.",
+                "usage": "Usage",
+                "aliases": "Aliases",
+                "description": "Description",
+                "status": "Status",
+                "example": "Example",
+                "footer": "Cypher Duels • Command System",
+                "unknown_command": "Unknown command or category."
+            },
+            "categories": {
+                "Bans": {
+                    "emoji": "🛡️",
+                    "commands": {
+                        "ban": {
+                            "description": "Ban a PB-ID and all known accounts sharing its IP or device.",
+                            "usage": "c!ban <pbid> <days> <reason>",
+                            "access": "staff",
+                            "implemented": true
+                        },
+                        "unban": {
+                            "description": "Remove an account ban. Related identity rules remain active.",
+                            "usage": "c!unban <pbid>",
+                            "access": "staff",
+                            "implemented": true
+                        },
+                        "bancheck": {
+                            "description": "Check whether a PB-ID is actively banned.",
+                            "usage": "c!bancheck <pbid>",
+                            "access": "staff",
+                            "implemented": true
+                        },
+                        "banlist": {
+                            "description": "Show active PB-ID bans with names, reasons and expiry times.",
+                            "usage": "c!banlist",
+                            "access": "staff",
+                            "implemented": true
+                        },
+                        "bandetails": {
+                            "description": "Show complete details for a PB-ID ban.",
+                            "usage": "c!bandetails <pbid>",
+                            "access": "staff",
+                            "implemented": true
+                        },
+                        "banrelated": {
+                            "description": "Find known accounts sharing a PB-ID's IP or device.",
+                            "usage": "c!banrelated <pbid>",
+                            "access": "staff",
+                            "implemented": true
+                        }
+                    },
+                    "description": "Manage account, IP and device bans."
+                },
+                "Mutes": {
+                    "commands": {
+                        "mute": {
+                            "description": "Mute a PB-ID and all known accounts sharing its IP or device.",
+                            "usage": "c!mute <pbid> <days> <reason>",
+                            "access": "staff",
+                            "implemented": true
+                        },
+                        "unmute": {
+                            "description": "Remove the PB-ID mute and its associated identity rules.",
+                            "usage": "c!unmute <pbid>",
+                            "access": "staff",
+                            "implemented": true
+                        },
+                        "mutecheck": {
+                            "description": "Check whether a PB-ID is actively muted.",
+                            "usage": "c!mutecheck <pbid>",
+                            "access": "staff",
+                            "implemented": true
+                        },
+                        "mutelist": {
+                            "description": "Show active PB-ID mutes with names, reasons and expiry times.",
+                            "usage": "c!mutelist",
+                            "access": "staff",
+                            "implemented": true
+                        },
+                        "mutedetails": {
+                            "description": "Show complete details for a PB-ID mute.",
+                            "usage": "c!mutedetails <pbid>",
+                            "access": "staff",
+                            "implemented": true
+                        }
+                    }
+                },
+                "DKV": {
+                    "emoji": "🗳️",
+                    "commands": {
+                        "dkv": {
+                            "description": "Start a Discord kick-vote workflow.",
+                            "implemented": false
+                        },
+                        "dkvcheck": {
+                            "description": "Check an active Discord kick vote.",
+                            "implemented": false
+                        },
+                        "dkvlist": {
+                            "description": "Show active kick votes.",
+                            "implemented": false
+                        },
+                        "ekv": {
+                            "description": "End an active kick vote.",
+                            "implemented": false
+                        }
+                    }
+                },
+                "Effects": {
+                    "emoji": "✨",
+                    "commands": {
+                        "effect": {
+                            "description": "Inspect a player's effects.",
+                            "implemented": false
+                        },
+                        "effectadd": {
+                            "description": "Add an effect to a player.",
+                            "implemented": false
+                        },
+                        "effectremove": {
+                            "description": "Remove an effect from a player.",
+                            "implemented": false
+                        },
+                        "effectscheck": {
+                            "description": "Check configured player effects.",
+                            "implemented": false
+                        },
+                        "effectsused": {
+                            "description": "Show effects currently in use.",
+                            "implemented": false
+                        }
+                    }
+                },
+                "Embed": {
+                    "emoji": "🧩",
+                    "commands": {
+                        "embed": {
+                            "description": "Preview a Discord embed.",
+                            "implemented": false
+                        }
+                    }
+                },
+                "Help": {
+                    "emoji": "📖",
+                    "commands": {
+                        "help": {
+                            "description": "Show command categories and command help.",
+                            "implemented": true,
+                            "usage": "c!help [category] [command]"
+                        }
+                    }
+                },
+                "Mail": {
+                    "emoji": "📨",
+                    "commands": {
+                        "mail": {
+                            "description": "Open the player mail system.",
+                            "implemented": false
+                        },
+                        "mailclear": {
+                            "description": "Clear player mail.",
+                            "implemented": false
+                        },
+                        "mailget": {
+                            "description": "Get a player's mail.",
+                            "implemented": false
+                        },
+                        "maillastget": {
+                            "description": "Get the latest mail entry.",
+                            "implemented": false
+                        },
+                        "maillastlist": {
+                            "description": "List recent mail entries.",
+                            "implemented": false
+                        },
+                        "maillist": {
+                            "description": "List player mail.",
+                            "implemented": false
+                        },
+                        "mailremove": {
+                            "description": "Remove a mail entry.",
+                            "implemented": false
+                        }
+                    }
+                },
+                "MaxDevice": {
+                    "emoji": "📱",
+                    "commands": {
+                        "changemaxdevice": {
+                            "description": "Change a player's device limit.",
+                            "implemented": false
+                        },
+                        "getmaxdevice": {
+                            "description": "Show the configured device limit.",
+                            "implemented": false
+                        },
+                        "maxdevicelist": {
+                            "description": "List device-limit overrides.",
+                            "implemented": false
+                        },
+                        "resetmaxdevice": {
+                            "description": "Reset a player's device limit.",
+                            "implemented": false
+                        },
+                        "setmaxdevice": {
+                            "description": "Set a player's device limit.",
+                            "implemented": false
+                        }
+                    }
+                },
+                "PlayerData": {
+                    "emoji": "🧑",
+                    "commands": {
+                        "compareplayer": {
+                            "description": "Compare two players for shared IP or device data.",
+                            "implemented": true,
+                            "usage": "c!compareplayer <player1> <player2>",
+                            "permission": "staff"
+                        },
+                        "finddevice": {
+                            "description": "Find the first player associated with a device ID.",
+                            "implemented": true,
+                            "usage": "c!finddevice <device_id>",
+                            "permission": "staff"
+                        },
+                        "finddeviceall": {
+                            "description": "Find all players associated with a device ID.",
+                            "implemented": true,
+                            "usage": "c!finddeviceall <device_id>",
+                            "permission": "staff"
+                        },
+                        "findip": {
+                            "description": "Find the first player associated with an IP address.",
+                            "implemented": true,
+                            "usage": "c!findip <ip>",
+                            "permission": "staff"
+                        },
+                        "findipall": {
+                            "description": "Find all players associated with an IP address.",
+                            "implemented": true,
+                            "usage": "c!findipall <ip>",
+                            "permission": "staff"
+                        },
+                        "findplayer": {
+                            "description": "Find the first player matching a display name.",
+                            "implemented": true,
+                            "usage": "c!findplayer <name>",
+                            "permission": "staff"
+                        },
+                        "findplayerall": {
+                            "description": "Find all players matching a display name.",
+                            "implemented": true,
+                            "usage": "c!findplayerall <name>",
+                            "permission": "staff"
+                        },
+                        "getmultideviceplayers": {
+                            "description": "Show players with multiple verified devices.",
+                            "implemented": false
+                        },
+                        "getmultidsplayers": {
+                            "description": "Show players with multiple display names.",
+                            "implemented": false
+                        },
+                        "gp": {
+                            "description": "Get a compact player profile.",
+                            "implemented": true,
+                            "usage": "c!gp <player>",
+                            "permission": "staff"
+                        },
+                        "playerdata": {
+                            "description": "Get detailed player data by account ID or player.",
+                            "implemented": true,
+                            "usage": "c!playerdata <player>",
+                            "permission": "staff"
+                        },
+                        "verifiedmembers": {
+                            "description": "Show the total number of verified player profiles.",
+                            "implemented": true,
+                            "usage": "c!verifiedmembers",
+                            "permission": "staff"
+                        }
+                    }
+                },
+                "PlayerStats": {
+                    "emoji": "📊",
+                    "commands": {
+                        "pstats": {
+                            "description": "Show statistics for a player.",
+                            "implemented": true,
+                            "usage": "c!pstats <player>"
+                        },
+                        "pstatsreset": {
+                            "description": "Reset player statistics.",
+                            "implemented": false
+                        },
+                        "pstatsset": {
+                            "description": "Set player statistics.",
+                            "implemented": false
+                        },
+                        "top": {
+                            "description": "Show the player leaderboard.",
+                            "implemented": true,
+                            "usage": "c!top"
+                        }
+                    }
+                },
+                "Playtime": {
+                    "emoji": "⏱️",
+                    "commands": {
+                        "getrolemembersplaytime": {
+                            "description": "Show playtime for role members.",
+                            "implemented": false
+                        },
+                        "playtime": {
+                            "description": "Show a player's total recorded playtime.",
+                            "implemented": true,
+                            "usage": "c!playtime <player>"
+                        },
+                        "topplaytime": {
+                            "description": "Show the players with the highest recorded playtime.",
+                            "implemented": true,
+                            "usage": "c!topplaytime"
+                        }
+                    }
+                },
+                "Powerups": {
+                    "emoji": "⚡",
+                    "commands": {
+                        "powerup": {
+                            "description": "Inspect or manage powerups.",
+                            "implemented": false
+                        }
+                    }
+                },
+                "Roles": {
+                    "emoji": "🎭",
+                    "commands": {
+                        "cmdadd": {
+                            "description": "Add a command to a role.",
+                            "implemented": false
+                        },
+                        "cmddesc": {
+                            "description": "Show role-command descriptions.",
+                            "implemented": false
+                        },
+                        "cmdlist": {
+                            "description": "List commands assigned to a role.",
+                            "implemented": false
+                        },
+                        "cmdremove": {
+                            "description": "Remove a command from a role.",
+                            "implemented": false
+                        },
+                        "getroles": {
+                            "description": "Show player/server roles.",
+                            "implemented": false
+                        },
+                        "role": {
+                            "description": "Inspect role information.",
+                            "implemented": false
+                        },
+                        "roleadd": {
+                            "description": "Assign a role.",
+                            "implemented": false
+                        },
+                        "rolecommands": {
+                            "description": "Show commands available to a role.",
+                            "implemented": false
+                        },
+                        "rolecreate": {
+                            "description": "Create a server role.",
+                            "implemented": false
+                        },
+                        "roledelete": {
+                            "description": "Delete a server role.",
+                            "implemented": false
+                        },
+                        "rolehier": {
+                            "description": "Show role hierarchy.",
+                            "implemented": false
+                        },
+                        "rolemembers": {
+                            "description": "Show members assigned to a role.",
+                            "implemented": false
+                        },
+                        "roleremove": {
+                            "description": "Remove a role from a player.",
+                            "implemented": false
+                        }
+                    }
+                },
+                "Season": {
+                    "emoji": "🏆",
+                    "commands": {
+                        "season": {
+                            "description": "Show current season information.",
+                            "implemented": false
+                        },
+                        "setseasoninterval": {
+                            "description": "Set the season interval.",
+                            "implemented": false
+                        },
+                        "startnewseason": {
+                            "description": "Start a new season.",
+                            "implemented": false
+                        }
+                    }
+                },
+                "Server Ops": {
+                    "emoji": "🖥️",
+                    "commands": {
+                        "disconnectplayer": {
+                            "description": "Disconnect a player.",
+                            "implemented": false
+                        },
+                        "getplaylistcode": {
+                            "description": "Get the current playlist code.",
+                            "implemented": false
+                        },
+                        "kickplayer": {
+                            "description": "Kick a player.",
+                            "implemented": false
+                        },
+                        "maxplayer": {
+                            "description": "Show or change the max-player setting.",
+                            "implemented": false
+                        },
+                        "maxplayeroverride": {
+                            "description": "Change the current session max-player value.",
+                            "implemented": false
+                        },
+                        "playlist": {
+                            "description": "Change the current playlist/session.",
+                            "implemented": false
+                        },
+                        "quit": {
+                            "description": "Restart the server through a controlled shutdown.",
+                            "implemented": false
+                        },
+                        "rejoincooldown": {
+                            "description": "Show or change the rejoin cooldown.",
+                            "implemented": false
+                        },
+                        "removeplayer": {
+                            "description": "Remove a player from the server.",
+                            "implemented": false
+                        },
+                        "servername": {
+                            "description": "Show the current server name.",
+                            "implemented": false
+                        },
+                        "setmaxplayer": {
+                            "description": "Set the server max-player limit.",
+                            "implemented": false
+                        },
+                        "setplaylistcode": {
+                            "description": "Set the server playlist code.",
+                            "implemented": false
+                        },
+                        "setrejoincooldown": {
+                            "description": "Set the server rejoin cooldown.",
+                            "implemented": false
+                        },
+                        "setservername": {
+                            "description": "Set a new BombSquad server name.",
+                            "implemented": false
+                        }
+                    }
+                },
+                "Server Management": {
+                    "emoji": "🛠️",
+                    "commands": {
+                        "info": {
+                            "description": "Show server-management information.",
+                            "implemented": false
+                        },
+                        "panel": {
+                            "description": "Open the interactive staff control panel.",
+                            "implemented": true,
+                            "usage": "c!panel",
+                            "permission": "staff"
+                        }
+                    }
+                },
+                "Server Management BS": {
+                    "emoji": "🎮",
+                    "commands": {
+                        "announceadd": {
+                            "description": "Add a server announcement.",
+                            "implemented": false
+                        },
+                        "announceedit": {
+                            "description": "Edit a server announcement.",
+                            "implemented": false
+                        },
+                        "announcelist": {
+                            "description": "List server announcements.",
+                            "implemented": false
+                        },
+                        "announceremove": {
+                            "description": "Remove a server announcement.",
+                            "implemented": false
+                        },
+                        "compdata": {
+                            "description": "Show a player's complaint data.",
+                            "implemented": false
+                        },
+                        "endgame": {
+                            "description": "End the current activity.",
+                            "implemented": false
+                        },
+                        "insertmessage": {
+                            "description": "Send a message into BombSquad chat.",
+                            "implemented": false
+                        },
+                        "join": {
+                            "description": "Show the server connection address.",
+                            "implemented": true,
+                            "usage": "c!join"
+                        },
+                        "recents": {
+                            "description": "Show recent players.",
+                            "implemented": false
+                        },
+                        "unwhitelist": {
+                            "description": "Remove a player from the whitelist.",
+                            "implemented": false
+                        },
+                        "whitelist": {
+                            "description": "Add a player to the whitelist.",
+                            "implemented": false
+                        },
+                        "whitelistcheck": {
+                            "description": "Check whether a player is whitelisted.",
+                            "implemented": false
+                        },
+                        "whitelists": {
+                            "description": "Show all whitelisted players.",
+                            "implemented": false
+                        }
+                    }
+                },
+                "Server Management DC": {
+                    "emoji": "🤖",
+                    "commands": {
+                        "reloadcogmodule": {
+                            "description": "Reload a Discord command module.",
+                            "implemented": false
+                        },
+                        "useradd": {
+                            "description": "Add a Discord user to the management whitelist.",
+                            "implemented": false
+                        },
+                        "userlist": {
+                            "description": "List authorized Discord users.",
+                            "implemented": false
+                        },
+                        "userremove": {
+                            "description": "Remove a Discord user from the management whitelist.",
+                            "implemented": false
+                        }
+                    }
+                },
+                "Status": {
+                    "emoji": "📡",
+                    "commands": {
+                        "status": {
+                            "description": "Show concise live server status.",
+                            "implemented": true,
+                            "usage": "c!status"
+                        }
+                    }
+                },
+                "Tags": {
+                    "emoji": "🏷️",
+                    "commands": {
+                        "tag": {
+                            "description": "Inspect a player's tag.",
+                            "implemented": false
+                        },
+                        "tagadd": {
+                            "description": "Add a player tag.",
+                            "implemented": false
+                        },
+                        "tagcheck": {
+                            "description": "Check a player's tag.",
+                            "implemented": false
+                        },
+                        "tagremove": {
+                            "description": "Remove a player tag.",
+                            "implemented": false
+                        },
+                        "tagusers": {
+                            "description": "Show users with a tag.",
+                            "implemented": false
+                        }
+                    }
+                },
+                "Staff": {
+                    "emoji": "🛡️",
+                    "commands": {
+                        "panel": {
+                            "description": "Open the interactive staff control panel.",
+                            "implemented": true,
+                            "usage": "c!panel",
+                            "permission": "staff"
+                        }
+                    }
+                },
+                "General": {
+                    "emoji": "📌",
+                    "commands": {
+                        "help": {
+                            "description": "Show command categories and command help.",
+                            "implemented": true,
+                            "usage": "c!help [category] [command]"
+                        },
+                        "players": {
+                            "description": "Show players currently in the server.",
+                            "implemented": true,
+                            "usage": "c!players"
+                        }
+                    }
+                },
+                "ChatLogs": {
+                    "emoji": "💬",
+                    "commands": {
+                        "alm": {
+                            "description": "Browse all available chat logs with pagination.",
+                            "usage": "c!alm",
+                            "access": "staff",
+                            "implemented": true
+                        },
+                        "hlm": {
+                            "description": "Browse all server messages with pagination.",
+                            "usage": "c!hlm",
+                            "access": "staff",
+                            "implemented": true
+                        },
+                        "lm": {
+                            "description": "Show the latest chat messages.",
+                            "usage": "c!lm [limit]",
+                            "access": "staff",
+                            "implemented": true
+                        },
+                        "plm": {
+                            "description": "Browse messages from a specific PB-ID.",
+                            "usage": "c!plm <pbid>",
+                            "access": "staff",
+                            "implemented": true
+                        }
+                    }
+                }
+            },
+            "display": {
+                "topCount": 10
+            },
+            "banSystem": {
+                "min_duration_days": 1,
+                "max_list_entries": 10,
+                "required_discord_permissions": [
+                    "administrator",
+                    "manage_guild",
+                    "manage_messages"
+                ],
+                "messages": {
+                    "no_permission": "You do not have permission to use this command.",
+                    "invalid_pbid": "Invalid PB-ID. Expected a value beginning with `pb-`.",
+                    "invalid_duration": "Ban duration must be a positive whole number of days.",
+                    "missing_reason": "A ban reason is required.",
+                    "invalid_ip": "Invalid IPv4/IPv6 address.",
+                    "invalid_device": "Invalid device ID.",
+                    "already_banned": "That target is already covered by an active ban.",
+                    "not_banned": "No active ban was found for that target.",
+                    "ban_success": "✅ Ban applied to `{target}`. Affected: `{count}` account(s). Expires: `{expires}`. Reason: {reason}",
+                    "unban_success": "Account ban removed for `{pbid}`.",
+                    "unban_linked_warning": "The account ban was removed for `{pbid}`, but an active IP/device ban still matches it.",
+                    "unban_identity_success": "{kind} ban removed for `{target}`. Remaining matching cases: `{remaining}`",
+                    "bancheck_none": "No active ban found for `{target}`.",
+                    "bancheck_header": "Active ban matches for `{target}`: `{count}`",
+                    "bancheck_entry": "• {reason} • expires `{expires}`",
+                    "banlist_header": "Active bans: `{count}`",
+                    "banlist_empty": "There are currently no active ban cases.",
+                    "banlist_entry": "• **{name}** `{pbid}`\n  Reason: {reason}\n  Issued: `{created}`\n  Expires: `{expires}`\n  Affected: `{accounts}` account(s) • `{ips}` IP identity(s) • `{devices}` device(s)",
+                    "bandetails_case": "Case `{case_id}`\nType: `{kind}`\nSource: `{source}`\nReason: `{reason}`\nIssued: `{issued}`\nExpires: `{expires}`\nIssued by: `{issued_by}`",
+                    "bandetails_accounts": "Linked accounts: `{count}`",
+                    "bandetails_account": "• `{pbid}` — {name} ({matched_by})",
+                    "bandetails_none": "No active ban case matches that target.",
+                    "related_header": "Known accounts associated with `{pbid}`: `{count}`",
+                    "related_entry": "`{other_pbid}` — `{name}` — same `{matched_by}`",
+                    "related_none": "No other known account currently shares that IP or device.",
+                    "generic_error": "The ban operation failed. Check the server log.",
+                    "bancheck_banned": "🔨 `{pbid}` is actively banned.",
+                    "bancheck_clear": "✅ No active ban found for `{pbid}`.",
+                    "bandetails_header": "**🔨 BAN DETAILS**\nPB-ID: `{pbid}`\nName: `{name}`\nReason: {reason}\nIssued: `{created}`\nExpires: `{expires}`\nAffected: `{accounts}` account(s) • `{ips}` IP identity(s) • `{devices}` device(s)"
+                },
+                "record_file": "playersdata/ban_records.json",
+                "display_timezone": "Asia/Kolkata",
+                "max_details_accounts": 25
+            },
+            "muteSystem": {
+                "min_duration_days": 1,
+                "max_list_entries": 10,
+                "max_details_accounts": 25,
+                "display_timezone": "Asia/Kolkata",
+                "record_file": "playersdata/mute_records.json",
+                "required_discord_permissions": [
+                    "administrator",
+                    "manage_guild",
+                    "manage_messages"
+                ],
+                "messages": {
+                    "no_permission": "❌ You do not have permission to use this command.",
+                    "invalid_pbid": "❌ Please provide a valid PB-ID.",
+                    "invalid_duration": "❌ Mute duration must be a positive whole number of days.",
+                    "missing_reason": "❌ Please provide a mute reason.",
+                    "already_muted": "🔇 That target is already covered by an active mute.",
+                    "mute_success": "🔇 Mute applied to `{target}`. Affected: `{count}` account(s). Expires: `{expires}`. Reason: {reason}",
+                    "unmute_success": "🔊 Mute removed from `{pbid}`. Unmuted: `{count}` account(s).",
+                    "not_muted": "✅ No active mute found for `{pbid}`.",
+                    "mutecheck_clear": "✅ No active mute found for `{pbid}`.",
+                    "mutecheck_banned": "🔇 `{pbid}` is actively muted. Active records: `{count}`",
+                    "mutecheck_entry": "• {reason} • expires `{expires}`",
+                    "mutecheck_legacy": "🔇 `{pbid}` has a legacy mute. Reason: {reason} • expires `{expires}`",
+                    "mutelist_empty": "✅ No active mutes.",
+                    "mutelist_header": "Active mutes: `{count}`",
+                    "mutelist_entry": "• **{name}** `{pbid}`\n  Reason: {reason}\n  Issued: `{created}`\n  Expires: `{expires}`\n  Affected: `{accounts}` account(s) • `{ips}` IP identity(s) • `{devices}` device(s)",
+                    "mutedetails_header": "**🔇 MUTE DETAILS**\nPB-ID: `{pbid}`\nName: `{name}`\nReason: {reason}\nIssued: `{created}`\nExpires: `{expires}`\nAffected: `{accounts}` account(s) • `{ips}` IP identity(s) • `{devices}` device(s)",
+                    "mutedetails_account": "• `{pbid}` — {name} ({matched_by})",
+                    "chat_notice": "{name}, you are muted until `{expires}`. Reason: {reason}"
+                }
+            },
+            "chatLogSystem": {
+                "page_size": 15,
+                "max_player_results": 5000,
+                "required_discord_permissions": [
+                    "administrator"
+                ],
+                "messages": {
+                    "all_title": "💬 Last 15 All Chat Logs",
+                    "host_title": "🖥️ Last 15 All Host Messages",
+                    "player_title": "👤 Last 15 Messages for `{pbid}`",
+                    "last_title": "💬 Last {count} Chat Logs",
+                    "empty": "No chat logs found.",
+                    "no_permission": "You do not have permission to use this command.",
+                    "invalid_limit": "Limit must be a whole number from 1 to 50.",
+                    "invalid_pbid": "Invalid PB-ID.",
+                    "invalid_page": "Invalid page number."
+                }
+            }
+        }
+    },
+    "elPatronPowerups": {
+        "Quantity": {
+            "Curse": 1,
+            "Fire Bombs": 3,
+            "Fly Bombs": 0,
+            "Goodbye": 0,
+            "Healing Damage": 0,
+            "Health": 1,
+            "Ice Bombs": 0,
+            "Ice Man": 0,
+            "Impact Bombs": 3,
+            "Impairment Bombs": 0,
+            "Mine Bombs": 2,
+            "Punch": 0,
+            "Shield": 0,
+            "Speed": 0,
+            "Sticky Bombs": 3,
+            "Tank Shield": 0,
+            "Triple": 3
+        },
+        "enable": true,
+        "settings": {
+            "Healing Damage PTG": 72,
+            "Powers Gravity": true,
+            "Powerup Name": true,
+            "Powerup Scale": 1,
+            "Powerup Style": "Auto",
+            "Powerup Time": false,
+            "Powerup With Shield": false,
+            "Powerups": {
+                "Curse": 1,
+                "Fire Bombs": 3,
+                "Fly Bombs": 0,
+                "Goodbye": 0,
+                "Healing Damage": 0,
+                "Health": 1,
+                "Ice Bombs": 0,
+                "Ice Man": 0,
+                "Impact Bombs": 3,
+                "Impairment Bombs": 0,
+                "Mine Bombs": 2,
+                "Punch": 0,
+                "Shield": 0,
+                "Speed": 0,
+                "Sticky Bombs": 3,
+                "Tank Shield": 0,
+                "Triple": 3
+            },
+            "Tank Shield PTG": 96
+        }
+    },
+    "enableHitTexts": true,
+    "enableTagAnimation": true,
+    "enableTop5effects": true,
+    "enableeffects": false,
+    "enablehptag": true,
+    "enablerank": true,
+    "enablestats": true,
+    "enabletags": true,
+    "firstTimeJoinMsg": "Welcome to Cypher Epic Duels,we are saving all your account details and chats",
+    "leaderboard": {
+        "enable": true,
+        "barsBehindName": true
+    },
+    "maxAccountPerIP": 3,
+    "maxPlayersPerDevice": 2,
+    "maxWarnCount": 2,
+    "mikirogQuickTurn": {
+        "enable": false
+    },
+    "minAgeToChatInHours": 78,
+    "minAgeToJoinInHours": 24,
+    "newResultBoard": true,
+    "playermod": {
+        "default_bomb": "normal",
+        "default_bomb_count": 2,
+        "default_boxing_gloves": true,
+        "default_shield": false
+    },
+    "playlists": {
+        "elim": 412172,
+        "epic": 412173,
+        "ffa": 412175,
+        "ffasmash": 412179,
+        "smash": 412151,
+        "soccer": 412160,
+        "team": 12345
+    },
+    "regularWelcomeMsg": "Welcome Back, Hope you enjoy here!",
+    "sameCharacterForTeam": false,
+    "statsResetAfterDays": 45,
+    "textonmap": {
+        "bottom left watermark": "",
+        "center highlights": {
+            "enable": false,
+            "color": [
+                1,
+                0,
+                0
+            ],
+            "randomColor": true,
+            "msg": [
+                "WELCOME TO CYPHER EPIC DUELS",
+                "JOIN OUR DISCORD : Cypher Official :)",
+                "TYPE (/vp) TO KNOW VOTING PLAYLIST",
+                "TYPE (/acl) TO KNOW ADMIN COMMANDS",
+                "TYPE (/coinhelp) TO KNOW HOW TO BUY EFFECTS AND MANY MORE..",
+                "TYPE (/vcl) TO KNOW VIP COMMANDS",
+                "TYPE END TO START END VOTE",
+                "START MSG WITH PREFIX .(dot) TO SEND IN GAME POPUP MSG",
+                "TYPE NV TO START NV VOTE",
+                "TYPE (/vp) TO KNOW VOTING PLAYLIST",
+                "TYPE (/cs) TO FIND OUT HOW TO COMPLAINT IN DISCORD SERVER FROM GAME",
+                "TYPE (/dclink) TO KNOW HOW TO LINK PBID TO DISCORD-ID & GET REWARDs",
+                "START MSG WITH PREFIX ,(comma) TO SEND MSG TO TEAMMATES",
+                "PLEASE RESPECT OTHER PLAYERS",
+                "JOIN OUR DISCORD SERVER BY CLICKING ON STATS BUTTON",
+                "DO NOT TEAMING WITH ANY PLAYER OR YOU WILL BE PUNISHED",
+                "TYPE (/shop effects) TO KNOW AVILABLE EFFECTS"
+            ]
+        },
+        "top watermark": "",
+        "enable": true
+    },
+    "useV2Account": false,
+    "warnMsg": "WARNING !!!",
+    "whitelist": false,
+    "mfa": {
+        "enable": true,
+        "enforce_for_all_players": false,
+        "enforce_for_accounts": [
+            "HeySmoothy",
+            "test"
+        ]
+    },
+    "enableping": true,
+    "TopMapText": {
+        "enable": true,
+        "msg": [
+            " CYPHER EPIC DUELS ",
+            " CYPHER DUELS ",
+            " FIGHT TO WIN ",
+            " SHOW YOUR SKILL ",
+            " READY, FIGHT! ",
+            " CLIMB THE RANKS ",
+            " CLAIM THE CROWN ",
+            " UNLEASH CHAOS "
+        ]
+    },
+    "timetext": {
+        "enable": false,
+        "timezone": "Asia/Kolkata"
     }
-  },
-  "enableHitTexts": true,
-  "enableTagAnimation": true,
-  "enableTop5effects": true,
-  "enableeffects": false,
-  "enablehptag": true,
-  "enablerank": true,
-  "enablestats": true,
-  "enabletags": true,
-  "firstTimeJoinMsg": "Welcome to the server,we r saving all your account details and chats",
-  "leaderboard": {
-    "barsBehindName": true,
-    "enable": true
-  },
-  "maxAccountPerIP": 3,
-  "maxPlayersPerDevice": 2,
-  "maxWarnCount": 2,
-  "mikirogQuickTurn": {
-    "enable": false
-  },
-  "minAgeToChatInHours": 78,
-  "minAgeToJoinInHours": 24,
-  "newResultBoard": true,
-  "playermod": {
-    "default_bomb": "normal",
-    "default_bomb_count": 1,
-    "default_boxing_gloves": true,
-    "default_shield": false
-  },
-  "playlists": {
-    "elim": 412172,
-    "epic": 412173,
-    "ffa": 412175,
-    "ffasmash": 412179,
-    "smash": 412151,
-    "soccer": 412160,
-    "team": 12345
-  },
-  "regularWelcomeMsg": "Welcome Back",
-  "sameCharacterForTeam": false,
-  "statsResetAfterDays": 45,
-  "textonmap": {
-    "bottom left watermark": "Owner : Cypher \nEditor : Cypher\nScripts : BCS1.7.51",
-    "center highlights": {
-      "color": [
-        1,
-        0,
-        0
-      ],
-      "msg": [
-        "type end to start end vote",
-        "start msg with prefix .(dot) to send in game popup msg",
-        "start msg with prefix ,(comma) to send msg to teammates",
-        "BombSquad Community Server - BCS"
-      ],
-      "randomColor": true
-    },
-    "top watermark": "Welcome to server \nIP @IP PORT @PORT"
-  },
-  "useV2Account": false,
-  "warnMsg": "WARNING !!!",
-  "whitelist": false,
-  "mfa": {
-    "enable": true,
-    "enforce_for_all_players": false,
-    "enforce_for_accounts": [
-      "HeySmoothy",
-      "test"
-    ]
-  }
 }

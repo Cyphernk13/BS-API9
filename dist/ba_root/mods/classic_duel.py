@@ -22,7 +22,7 @@ def _cypher_duel_ffa_point_awards(
     session: bs.FreeForAllSession,
 ) -> dict[int, int]:
     del session
-    return {0: 10}
+    return {}
 
 
 bs.FreeForAllSession.get_ffa_point_awards = _cypher_duel_ffa_point_awards
@@ -55,6 +55,8 @@ class Player(bs.Player['Team']):
         self.playervs2 = False
         self.duel_slot: int | None = None
         self.ping_text: bs.Node | None = None
+        self.ping_position: bs.Node | None = None
+        self.round_kills = 0
 
 
 class Team(bs.Team[Player]):
@@ -79,6 +81,9 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
     # Round score is kept in the Session so an accidental disconnect/rejoin
     # during the current 10-point match does not reset the score.
     _ROUND_SCORE_STORE_KEY = babase.storagename('cypher_duel_round_scores')
+    _ROUND_KILLS_STORE_KEY = babase.storagename(
+        'cypher_duel_round_kills'
+    )
 
     # Series score is backed by account-id as an extra safety net for players
     # who disconnect between map activities.  Connected players also retain
@@ -135,6 +140,7 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
         self._queue: list[Player] = []
         self._active_players: list[Player] = []
         self._initial_duel_complete = False
+        self._series_points_awarded = False
 
         self.slow_motion = True
         self.default_music = bs.MusicType.EPIC
@@ -149,12 +155,25 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
     def get_instance_description_short(self) -> str | Sequence:
         return 'first to ${ARG1} points', self.WINNING_SCORE
 
+    # Disable Ballistica's repetitive game-start info displays.
+    # This removes the top-left "Classic Duel / first to 10 points"
+    # message and the larger center-screen start announcement.
+    def _show_scoreboard_info(self) -> None:
+        # Keep BombSquad's normal small top-left game information.
+        super()._show_scoreboard_info()
+
+    def _show_info(self) -> None:
+        # Disable only the large center-screen round-start announcement.
+        pass
+
     def on_begin(self) -> None:
         super().on_begin()
 
         # A new Activity means a new 10-point match, so round scores reset.
         # The Session itself remains alive across maps, preserving the series.
         self.session.customdata[self._ROUND_SCORE_STORE_KEY] = {}
+        self.session.customdata[self._ROUND_KILLS_STORE_KEY] = {}
+        self._series_points_awarded = False
         series_scores = self.session.customdata.setdefault(
             self._SERIES_SCORE_STORE_KEY, {}
         )
@@ -183,9 +202,10 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
 
         self.setup_standard_time_limit(self._time_limit)
 
-        self._ping_timer = bs.AppTimer(
-            0.5,
-            babase.Call(self._update_ping_labels),
+        # Update pings independently of slow-motion timing.
+        self._ping_timer = babase.AppTimer(
+            0.2,
+            babase.WeakCall(self._update_ping_labels),
             repeat=True,
         )
 
@@ -233,6 +253,7 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
     def on_player_leave(self, player: Player) -> None:
         # Save before the base class tears down the player/team association.
         self._save_player_score(player)
+        self._delete_ping_label(player)
 
         if player in self._queue:
             self._queue.remove(player)
@@ -245,8 +266,6 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
         player.playervs2 = False
         player.duel_slot = None
         player.icons = []
-        self._delete_ping_label(player)
-
         super().on_player_leave(player)
 
         self._start_next_duel()
@@ -264,11 +283,176 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
         if self._boxing_gloves:
             spaz.equip_boxing_gloves()
 
-        # Score text is intentionally NOT shown on spawn. It is shown only
-        # by the kill event in handlemessage().
         self._create_ping_label(player)
 
+        # Score text is intentionally NOT shown on spawn.
+        # It is shown only by the kill event.
         return spaz
+
+    def _delete_ping_label(self, player: Player) -> None:
+        if player.ping_text is not None:
+            try:
+                player.ping_text.delete()
+            except Exception:
+                pass
+            player.ping_text = None
+
+        if player.ping_position is not None:
+            try:
+                player.ping_position.delete()
+            except Exception:
+                pass
+            player.ping_position = None
+
+    def _create_ping_label(self, player: Player) -> None:
+        # Same attachment method as BS-Duels:
+        # torso_position -> math node -> in-world text.
+        self._delete_ping_label(player)
+
+        spaz = player.actor
+
+        if not isinstance(spaz, PlayerSpaz):
+            return
+
+        if not spaz.node:
+            return
+
+        mnode = bs.newnode(
+            'math',
+            owner=spaz.node,
+            attrs={
+                'input1': (0.0, -0.8, 0.0),
+                'operation': 'add',
+            },
+        )
+
+        spaz.node.connectattr(
+            'torso_position',
+            mnode,
+            'input2',
+        )
+
+        player.ping_position = mnode
+
+        player.ping_text = bs.newnode(
+            'text',
+            owner=spaz.node,
+            attrs={
+                'text': '...',
+                'in_world': True,
+                'shadow': 0.5,
+                'flatness': 1.0,
+                'color': (1.0, 1.0, 1.0),
+                'scale': 0.009,
+                'h_align': 'center',
+                'v_align': 'center',
+            },
+        )
+
+        mnode.connectattr(
+            'output',
+            player.ping_text,
+            'position',
+        )
+
+    @staticmethod
+    def _get_ping_color(
+        ping_ms: float,
+    ) -> tuple[float, float, float]:
+        # Legacy BS-Duels ping colors.
+        if ping_ms < 50:
+            return (0.0, 1.0, 0.2)      # Cyan-green
+        elif ping_ms < 100:
+            return (0.2, 1.0, 0.0)      # Green
+        elif ping_ms < 150:
+            return (0.9, 1.0, 0.0)      # Yellow
+        elif ping_ms < 200:
+            return (1.0, 0.5, 0.0)      # Orange
+        else:
+            return (1.0, 0.1, 0.1)      # Red
+
+    def _update_ping_labels(self) -> None:
+        for player in list(self._active_players):
+            spaz = player.actor
+
+            if (
+                not isinstance(spaz, PlayerSpaz)
+                or not spaz.node
+                or not spaz.is_alive()
+            ):
+                self._delete_ping_label(player)
+                continue
+
+            if player.ping_text is None:
+                self._create_ping_label(player)
+
+            text = player.ping_text
+            if text is None:
+                continue
+
+            try:
+                sessionplayer = player.sessionplayer
+                if sessionplayer is None:
+                    text.text = '--ms'
+                    continue
+
+                device = sessionplayer.inputdevice
+                if device is None:
+                    text.text = '--ms'
+                    continue
+
+                client_id = int(device.client_id)
+
+                # Local devices do not have a network client id.
+                if client_id < 0:
+                    text.text = '--ms'
+                    continue
+
+                # API 9 public method.
+                ping_func = getattr(bs, 'get_client_ping', None)
+
+                # Fallback to the native API-9 module if needed.
+                if ping_func is None:
+                    try:
+                        import _bascenev1
+                        ping_func = getattr(
+                            _bascenev1,
+                            'get_client_ping',
+                            None,
+                        )
+                    except Exception:
+                        ping_func = None
+
+                if ping_func is None:
+                    raise RuntimeError(
+                        'get_client_ping() is not available'
+                    )
+
+                ping_val = ping_func(client_id)
+
+                if ping_val is None:
+                    text.text = '--ms'
+                    continue
+
+                ping_value = float(ping_val)
+
+                if ping_value < 0:
+                    text.text = '--ms'
+                else:
+                    text.text = f'{int(round(ping_value))}ms'
+                    text.color = self._get_ping_color(ping_value)
+
+            except Exception as exc:
+                text.text = '--ms'
+                text.color = (1.0, 1.0, 1.0)
+
+                # Print the real error so we can diagnose the engine/API
+                # without breaking gameplay.
+                print(
+                    '[CYDUEL PING ERROR]',
+                    type(exc).__name__,
+                    str(exc),
+                )
 
     def _get_spawn_point(self, player: Player) -> bs.Vec3 | None:
         # The first two players use the first two team-start positions so they
@@ -339,6 +523,13 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
             self.session.customdata[self._SERIES_SCORE_STORE_KEY] = data
         return data
 
+    def _get_round_kills_store(self) -> dict[str, int]:
+        data = self.session.customdata.get(self._ROUND_KILLS_STORE_KEY)
+        if not isinstance(data, dict):
+            data = {}
+            self.session.customdata[self._ROUND_KILLS_STORE_KEY] = data
+        return data
+
     def _get_sessionplayer_account_id(
         self, sessionplayer: bs.SessionPlayer
     ) -> str | None:
@@ -372,6 +563,9 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
             return
 
         self._get_round_score_store()[account_id] = int(player.team.score)
+        self._get_round_kills_store()[account_id] = int(
+            getattr(player, 'round_kills', 0)
+        )
 
         # Save the current FFA series score too when available.
         try:
@@ -409,6 +603,10 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
         player.team.score = max(
             0, min(self.WINNING_SCORE, round_score)
         )
+        player.round_kills = max(
+            0,
+            int(self._get_round_kills_store().get(account_id, 0)),
+        )
 
         # Restore the series score for a player who has rejoined after a
         # disconnect.  For players who never left, the SessionTeam score is
@@ -436,22 +634,33 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
                 team, team.score, self.WINNING_SCORE
             )
 
-            # Keep the stock layout but force the player name to white so a
-            # dark profile color cannot make it unreadable.
-            try:
-                entry = self._scoreboard._entries[team.id]
-                if entry._name_text.node:
-                    entry._name_text.node.color = (1.0, 1.0, 1.0, 1.0)
-            except (KeyError, AttributeError):
-                pass
+
+    def _clear_icons(self) -> None:
+        for player in self.players:
+            for icon in list(player.icons):
+                try:
+                    icon.handlemessage(bs.DieMessage())
+                except Exception:
+                    try:
+                        if icon.node:
+                            icon.node.delete()
+                    except Exception:
+                        pass
+            player.icons = []
 
     def _update_icons(self) -> None:
         for player in self.players:
             player.icons = []
 
-        # Active duelists stay in the traditional left/right positions.
+        # Active duelists.
         for player in self._active_players:
-            xval = -60 if player.playervs1 else 60
+            if player.playervs1:
+                xval = -60
+            elif player.playervs2:
+                xval = 60
+            else:
+                continue
+
             player.icons.append(
                 Icon(
                     player,
@@ -466,19 +675,19 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
                 )
             )
 
-        # Queue: exactly one icon per waiting player.  The old code created
-        # two icons per player (left and right), which causes names to collide
-        # badly with a 5-player queue.
-        queue_positions = (-160, -80, 0, 80, 160)
+        # Original BS-Duels queue.
+        x_right = 125.0
+        x_left = -125.0
+        x_step = 78.0 * 0.56
 
-        for index, player in enumerate(self._queue[:5]):
+        for player in self._queue[:5]:
             player.icons.append(
                 Icon(
                     player,
-                    position=(queue_positions[index], 24),
-                    scale=0.48,
-                    name_maxwidth=70,
-                    name_scale=0.72,
+                    position=(x_right, 25),
+                    scale=0.5,
+                    name_maxwidth=75,
+                    name_scale=1.0,
                     flatness=1.0,
                     shadow=1.0,
                     show_death=False,
@@ -486,78 +695,22 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
                 )
             )
 
-    def _delete_ping_label(self, player: Player) -> None:
-        node = player.ping_text
-        player.ping_text = None
-        if node is not None:
-            try:
-                node.delete()
-            except Exception:
-                pass
-
-    def _create_ping_label(self, player: Player) -> None:
-        self._delete_ping_label(player)
-
-        try:
-            client_id = player.sessionplayer.inputdevice.client_id
-        except Exception:
-            return
-
-        if client_id < 0:
-            return
-
-        actor = player.actor
-        if not isinstance(actor, PlayerSpaz) or not actor.node:
-            return
-
-        player.ping_text = bs.newnode(
-            'text',
-            attrs={
-                'text': '-- ms',
-                'position': actor.node.position,
-                'h_attach': 'center',
-                'h_align': 'center',
-                'v_attach': 'center',
-                'scale': 0.0075,
-                'shadow': 1.0,
-                'flatness': 1.0,
-                'color': (1.0, 1.0, 1.0, 1.0),
-                'vr_depth': 0.0,
-            },
-        )
-
-    def _update_ping_labels(self) -> None:
-        # Keep the label under each active player's feet and refresh the RTT.
-        # get_client_ping() returns RTT in milliseconds; -1 means invalid id.
-        for player in self._active_players:
-            actor = player.actor
-            if not isinstance(actor, PlayerSpaz) or not actor.node:
-                self._delete_ping_label(player)
-                continue
-
-            if player.ping_text is None or not player.ping_text:
-                self._create_ping_label(player)
-
-            node = player.ping_text
-            if node is None:
-                continue
-
-            try:
-                client_id = player.sessionplayer.inputdevice.client_id
-                ping = bs.get_client_ping(client_id)
-                if ping < 0:
-                    node.text = '-- ms'
-                else:
-                    node.text = f'{round(ping):d} ms'
-
-                pos = actor.node.position
-                node.position = (
-                    pos[0],
-                    pos[1] - 1.35,
-                    pos[2],
+            player.icons.append(
+                Icon(
+                    player,
+                    position=(x_left, 25),
+                    scale=0.5,
+                    name_maxwidth=75,
+                    name_scale=1.0,
+                    flatness=1.0,
+                    shadow=1.0,
+                    show_death=False,
+                    show_lives=False,
                 )
-            except Exception:
-                self._delete_ping_label(player)
+            )
+
+            x_right += x_step
+            x_left -= x_step
 
     def handlemessage(self, msg: Any) -> Any:
         if not isinstance(msg, bs.PlayerDiedMessage):
@@ -575,9 +728,8 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
         player.playervs1 = False
         player.playervs2 = False
         player.duel_slot = None
-        player.icons = []
         self._delete_ping_label(player)
-
+        player.icons = []
         # The loser goes to the back of the queue.
         if player.exists():
             self._queue.append(player)
@@ -593,6 +745,14 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
             # A genuine opponent kill awards one point.
             if killer in self.players and killer.team is not player.team:
                 killer.team.score += 1
+                killer.round_kills = int(
+                    getattr(killer, 'round_kills', 0)
+                ) + 1
+                account_id = self._get_account_id(killer)
+                if account_id:
+                    self._get_round_kills_store()[account_id] = (
+                        killer.round_kills
+                    )
                 self._save_player_score(killer)
 
                 if isinstance(killer.actor, PlayerSpaz) and killer.actor:
@@ -614,9 +774,37 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
 
         return None
 
-    def end_game(self) -> None:
-        results = bs.GameResults()
 
+    def end_game(self) -> None:
+        if self.has_ended() or self._series_points_awarded:
+            return
+
+        self._series_points_awarded = True
+
+        # Award 1 SERIES point per genuine opponent kill from this match.
+        # Suicide penalties only affect the 10-point round score; they do not
+        # erase a kill already earned.
+        series_scores = self._get_series_score_store()
+        round_kills = self._get_round_kills_store()
+
+        for sessionteam in self.session.sessionteams:
+            if len(sessionteam.players) != 1:
+                continue
+
+            sessionplayer = sessionteam.players[0]
+            account_id = self._get_sessionplayer_account_id(sessionplayer)
+            if not account_id:
+                continue
+
+            kills = max(0, int(round_kills.get(account_id, 0)))
+            old_score = int(sessionteam.customdata.get('score', 0))
+            new_score = old_score + kills
+
+            sessionteam.customdata['previous_score'] = old_score
+            sessionteam.customdata['score'] = new_score
+            series_scores[account_id] = new_score
+
+        results = bs.GameResults()
         for team in self.teams:
             results.set_team_score(team, team.score)
 

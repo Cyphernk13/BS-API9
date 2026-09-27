@@ -128,7 +128,7 @@
  "Auto Balance Teams": false,
  "Bear Coin": 0,
  "Bear Store": {
-  "Buy Firebombs": false,
+  "Buy Firebombs": true,
   "Buy Option": false,
   "Buy Percentage": false,
   "Promo Code": {
@@ -196,21 +196,23 @@
   ]
  ],
  "Custom Team Names": [
-  "ladoo",
-  "barfi"
+  "cypher",
+  "auxil"
  ],
  "Default Player Profiles": {
-  "Client Input Device #1": "Donny",
-  "Client Input Device #2": "__account__",
-  "Client Input Device #3": "Dontol"
+  "Client Input Device #1": "visvesh",
+  "Client Input Device #2": "pro",
+  "Client Input Device #3": "__account__",
+  "Client Input Device #4": "K\u0489I\u0489R\u0489A\u0489",
+  "Client Input Device #5": "bisht4189 1.0"
  },
  "FFA Series Length": 40,
  "Fleet Zone Ping Last Flush Time": 1790442214,
  "Fleet Zone Pings": {
   "prod": {
-   "delhi.v4": 19.572399159142748,
-   "hyderabad.v4": 50.821507907625175,
-   "mumbai.v4": 2.1652274752457963
+   "delhi.v4": 34.349251623820635,
+   "hyderabad.v4": 15.002470938801043,
+   "mumbai.v4": 2.1345224386779504
   }
  },
  "Free-for-All Playlist Randomize": true,
@@ -222,27 +224,27 @@
   "Healing Damage PTG": 72,
   "Powers Gravity": true,
   "Powerup Name": true,
-  "Powerup Scale": 1.0,
+  "Powerup Scale": 1,
   "Powerup Style": "Auto",
   "Powerup Time": false,
-  "Powerup With Shield": true,
+  "Powerup With Shield": false,
   "Powerups": {
    "Curse": 1,
    "Fire Bombs": 3,
-   "Fly Bombs": 3,
-   "Goodbye": 2,
-   "Healing Damage": 1,
+   "Fly Bombs": 0,
+   "Goodbye": 0,
+   "Healing Damage": 0,
    "Health": 1,
-   "Ice Bombs": 3,
-   "Ice Man": 1,
+   "Ice Bombs": 0,
+   "Ice Man": 0,
    "Impact Bombs": 3,
-   "Impairment Bombs": 2,
+   "Impairment Bombs": 0,
    "Mine Bombs": 2,
-   "Punch": 3,
-   "Shield": 2,
-   "Speed": 2,
+   "Punch": 0,
+   "Shield": 0,
+   "Speed": 0,
    "Sticky Bombs": 3,
-   "Tank Shield": 1,
+   "Tank Shield": 0,
    "Triple": 3
   },
   "Tank Shield PTG": 96
@@ -270,7 +272,7 @@
    "enabled": true
   },
   "plugins.auto_stunt.byHeySmoothy": {
-   "enabled": true
+   "enabled": false
   }
  },
  "Port": 43210,
@@ -281,7 +283,7 @@
  "Team Tournament Playlist Selection": "\u041a\u043e\u043f\u0438\u044f \u0421\u0442\u0430\u043d\u0434\u0430\u0440\u0442\u043d\u044b\u0439 \u043f\u043b\u0435\u0439-\u043b\u0438\u0441\u0442 \u0440\u0435\u0436\u0438\u043c\u0430 \u041a\u043e\u043c\u0430\u043d\u0434\u044b",
  "Team Tournament Playlists": {},
  "Teams Series Length": 7,
- "launchCount": 116,
+ "launchCount": 192,
  "lc14173": 1,
  "lc14292": 1
 }

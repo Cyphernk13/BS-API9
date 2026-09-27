@@ -163,7 +163,7 @@ def on_player_join_server(pbid, player_data, ip, device_id):
             {"client_id": clid, "deviceId": device_string, "pbid": pbid, "ip": ip, "device_uuid": device_id})
         serverdata.recents = serverdata.recents[-20:]
         if check_ban(ip, device_id, pbid):
-            _babase.chatmessage(
+            bs.chatmessage(
                 'sad ,your account is flagged contact server owner for unban',
                 clients=[clid])
             bs.disconnect_client(clid)
@@ -231,33 +231,38 @@ def on_player_join_server(pbid, player_data, ip, device_id):
     # pdata.add_profile(pbid,d_string,d_string)
 
 
-def check_ban(ip, device_id, pbid, log=True):
-    current_time = datetime.now()
 
-    if ip in blacklist["ban"]['ips'] and current_time < datetime.strptime(
-            blacklist["ban"]["ips"][ip]["till"], "%Y-%m-%d %H:%M:%S"):
-        msg = f' reason: matched IP | {blacklist["ban"]["ips"][ip]["reason"]} , Till : {blacklist["ban"]["ips"][ip]["till"]}'
-        if log:
-            logger.log(f'{pbid} | kicked > {msg}')
-            return True
-        return msg
-    elif device_id in blacklist["ban"][
-            "deviceids"] and current_time < datetime.strptime(
-            blacklist["ban"]["deviceids"][device_id]["till"], "%Y-%m-%d %H:%M:%S"):
-        msg = f'reason: matched deviceId | {blacklist["ban"]["deviceids"][device_id]["reason"]}, Till : {blacklist["ban"]["deviceids"][device_id]["till"]}'
+def check_ban(
+    ip,
+    device_id,
+    pbid,
+    log=True,
+):
+    """Authoritative V2 ban check used by the server join path."""
+
+    try:
+        from features import discord_ban_commands
+
+        banned = discord_ban_commands.is_identity_banned(
+            ip,
+            device_id,
+            pbid,
+        )
+    except Exception:
+        logger.log(
+            "Authoritative ban check failed.",
+            mtype="sys",
+        )
+        return False
+
+    if banned:
         if log:
             logger.log(
-                f'{pbid} | kicked > {msg}')
-            return True
-        return msg
-    elif pbid in blacklist["ban"]["ids"] and current_time < datetime.strptime(
-            blacklist["ban"]["ids"][pbid]["till"], "%Y-%m-%d %H:%M:%S"):
-        msg = f'reason: matched ID | {blacklist["ban"]["ids"][pbid]["reason"]} , Till : {blacklist["ban"]["ids"][pbid]["till"]}'
-        if log:
-            logger.log(
-                f'{pbid} | kicked > {msg}')
-            return True
-        return msg
+                f"{pbid} | kicked > reason: banned identity",
+                mtype="sys",
+            )
+        return True
+
     return False
 
 

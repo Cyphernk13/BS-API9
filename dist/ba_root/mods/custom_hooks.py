@@ -41,6 +41,7 @@ from playersdata import pdata
 from serverdata import serverdata
 from spazmod import modifyspaz
 from stats import mystats
+from features import discord_ban_commands
 from tools import account
 from tools import notification_manager
 from tools import servercheck, server_update, logger, playlist, servercontroller
@@ -51,9 +52,88 @@ if TYPE_CHECKING:
 settings = setting.get_settings_data()
 
 
-def filter_chat_message(msg: str, client_id: int) -> str | None:
-    """Returns all in game messages or None (ignore's message)."""
-    return handlechat.filter_chat_message(msg, client_id)
+_cypher_original_check_ban_v2 = getattr(
+    servercheck,
+    "check_ban",
+    None,
+)
+
+
+def _cypher_check_ban_v2(
+    ip,
+    device_id,
+    pbid,
+):
+    if discord_ban_commands.is_identity_banned(
+        ip,
+        device_id,
+        pbid,
+    ):
+        return True
+
+    if _cypher_original_check_ban_v2 is not None:
+        return bool(
+            _cypher_original_check_ban_v2(
+                ip,
+                device_id,
+                pbid,
+            )
+        )
+
+    return False
+
+
+if _cypher_original_check_ban_v2 is not None:
+    servercheck.check_ban = (
+        _cypher_check_ban_v2
+    )
+
+
+def filter_chat_message(
+    msg: str,
+    client_id: int,
+) -> str | None:
+    """Block muted clients before normal chat processing."""
+
+    try:
+        from features import mute_system
+
+        (
+            muted,
+            name,
+            expires_at,
+            reason,
+        ) = mute_system.get_client_mute_state(
+            client_id
+        )
+
+        if muted:
+            try:
+                mute_system.notify_muted(
+                    client_id,
+                    name,
+                    expires_at,
+                    reason,
+                )
+            except Exception:
+                logging.exception(
+                    "Failed to notify muted client."
+                )
+
+            return None
+
+    except Exception:
+        # Never break the entire chat system if the mute subsystem
+        # encounters an unexpected problem.
+        logging.exception(
+            "Mute chat check failed."
+        )
+
+    return handlechat.filter_chat_message(
+        msg,
+        client_id,
+    )
+
 
 
 # ba_meta export babase.Plugin
@@ -203,16 +283,168 @@ def bootstraping():
 
 
 def import_discord_bot() -> None:
-    """Imports the discord bot."""
-    if settings["discordbot"]["enable"]:
-        from features import discord_bot
-        discord_bot.token = settings["discordbot"]["token"]
-        discord_bot.liveStatsChannelID = settings["discordbot"][
-            "liveStatsChannelID"]
-        discord_bot.logsChannelID = settings["discordbot"]["logsChannelID"]
-        discord_bot.liveChat = settings["discordbot"]["liveChat"]
-        discord_bot.BsDataThread()
-        discord_bot.init()
+    """Imports the Discord bot from external configuration."""
+    if not settings["discordbot"]["enable"]:
+        return
+
+    from features import discord_bot
+
+    cfg = settings["discordbot"]
+
+    token_file = os.path.expanduser(
+        cfg["token_file"]
+    )
+
+    try:
+        with open(
+            token_file,
+            "r",
+            encoding="utf-8",
+        ) as token_handle:
+            discord_token = (
+                token_handle.read().strip()
+            )
+    except OSError as exc:
+        raise RuntimeError(
+            "Discord token file could not be read."
+        ) from exc
+
+    if not discord_token:
+        raise RuntimeError(
+            "Discord token file is empty."
+        )
+
+    discord_bot.token = discord_token
+
+    discord_bot.guildID = int(
+        cfg["guildID"]
+    )
+
+    discord_bot.liveStatsChannelID = int(
+        cfg["liveStatsChannelID"]
+    )
+
+    discord_bot.logsChannelID = int(
+        cfg["logsChannelID"]
+    )
+
+    discord_bot.notifyChannelID = int(
+        cfg["notifyChannelID"]
+    )
+
+    discord_bot.complaintChannelID = int(
+        cfg["complaintChannelID"]
+    )
+
+    discord_bot.liveChat = bool(
+        cfg["liveChat"]
+    )
+
+    discord_bot.bot_prefix = str(
+        cfg["prefix"]
+    )
+
+    discord_bot.refresh_interval = max(
+        float(
+            cfg["refreshInterval"]
+        ),
+        1.0,
+    )
+
+    discord_bot.stats_refresh_interval = max(
+        float(
+            cfg["statsRefreshInterval"]
+        ),
+        1.0,
+    )
+
+    discord_bot.channel_history_limit = max(
+        int(
+            cfg["channelHistoryLimit"]
+        ),
+        1,
+    )
+
+    discord_bot.state_file = str(
+        cfg["state_file"]
+    )
+
+    discord_bot.commandConfig = dict(
+        cfg.get(
+            "commandConfig",
+            {},
+        )
+    )
+
+    discord_bot.discord_messages = dict(
+        cfg["messages"]
+    )
+
+
+    discord_bot.log_config = dict(
+        cfg.get(
+            "logs",
+            {},
+        )
+    )
+
+    discord_bot.logs_batch_interval = max(
+        float(
+            cfg.get(
+                "logs",
+                {},
+            ).get(
+                "batchInterval",
+                3,
+            )
+        ),
+        1.0,
+    )
+
+    discord_bot.ui_config = dict(
+        cfg.get("ui", {})
+    )
+
+    discord_bot.server_connect = dict(
+        cfg.get(
+            "serverConnect",
+            {},
+        )
+    )
+
+    discord_bot.max_players = int(
+        cfg.get(
+            "maxPlayers",
+            5,
+        )
+    )
+
+    discord_bot.allowed_user_ids = {
+        int(user_id)
+        for user_id in cfg.get(
+            "allowed_user_ids",
+            [],
+        )
+    }
+
+    from features import discord_commands
+    discord_commands.register(discord_bot)
+    from features import discord_data_commands
+    discord_data_commands.register(discord_bot)
+    discord_ban_commands.register(discord_bot.client)
+    from features import discord_chatlog_commands
+    discord_chatlog_commands.register(discord_bot.client)
+    from features import discord_data_commands
+    discord_data_commands.register(discord_bot)
+    from features import discord_dkv_commands
+    discord_dkv_commands.register(discord_bot.client)
+
+
+    discord_bot.BsDataThread()
+    discord_bot.init()
+
+
+
 
 
 def import_games():
@@ -355,29 +587,207 @@ def shutdown(func) -> None:
 ServerController.shutdown = shutdown(ServerController.shutdown)
 
 
+def _get_sessionplayer_account_id(sessionplayer) -> str | None:
+    """Return the API 9 session player's PB-ID."""
+    for method_name in (
+        "get_v1_account_id",
+        "get_account_id",
+    ):
+        method = getattr(sessionplayer, method_name, None)
+
+        if callable(method):
+            try:
+                account_id = method()
+            except Exception:
+                continue
+
+            if account_id:
+                return str(account_id)
+
+    return None
+
+
+def _is_banned_account(account_id: str | None) -> bool:
+    """Return whether the current player has an active ban."""
+    if not account_id:
+        return False
+
+    # Prefer the profile's current isBan state. This avoids relying only
+    # on a potentially stale blacklist entry.
+    try:
+        profile = pdata.get_info(account_id)
+
+        if isinstance(profile, dict) and "isBan" in profile:
+            return bool(profile.get("isBan"))
+    except Exception:
+        pass
+
+    # Fallback to the persistent blacklist.
+    try:
+        blacklist = pdata.get_blacklist()
+
+        if not isinstance(blacklist, dict):
+            return False
+
+        ban_data = blacklist.get("ban", {})
+
+        if not isinstance(ban_data, dict):
+            return False
+
+        ids = ban_data.get("ids", [])
+
+        if isinstance(ids, dict):
+            return account_id in ids
+
+        if isinstance(ids, (list, tuple, set)):
+            return account_id in ids
+    except Exception:
+        pass
+
+    return False
+
+
+def _disconnect_banned_sessionplayer(sessionplayer) -> None:
+    """Disconnect a banned client immediately."""
+    try:
+        client_id = sessionplayer.inputdevice.client_id
+    except Exception:
+        return
+
+    if isinstance(client_id, int) and client_id >= 0:
+        try:
+            _bascenev1.disconnect_client(client_id)
+        except Exception:
+            logging.exception(
+                "Unable to disconnect banned client %s.",
+                client_id,
+            )
+
+
+
 def on_player_request(func) -> bool:
     def wrapper(*args, **kwargs):
         player = args[1]
+
+        # Get PBID.
+        getter = getattr(
+            player,
+            "get_account_id",
+            None,
+        )
+
+        if callable(getter):
+            try:
+                pbid = getter()
+            except Exception:
+                pbid = None
+        else:
+            pbid = None
+
+        if pbid is None:
+            getter = getattr(
+                player,
+                "get_v1_account_id",
+                None,
+            )
+
+            if callable(getter):
+                try:
+                    pbid = getter()
+                except Exception:
+                    pbid = None
+
+        # Enforce only from the authoritative V2 identity store.
+        try:
+            import _bascenev1
+
+            client_id = (
+                player.inputdevice.client_id
+            )
+
+            ip = _bascenev1.get_client_ip(
+                client_id
+            )
+
+            device_id = (
+                _bascenev1.get_client_public_device_uuid(
+                    client_id
+                )
+            )
+
+            if device_id is None:
+                device_id = (
+                    _bascenev1.get_client_device_uuid(
+                        client_id
+                    )
+                )
+
+            from features import discord_ban_commands
+
+            if discord_ban_commands.is_identity_banned(
+                ip,
+                device_id,
+                pbid,
+            ):
+                try:
+                    _bascenev1.disconnect_client(
+                        client_id
+                    )
+                except Exception:
+                    pass
+
+                return False
+
+        except Exception:
+            logging.exception(
+                "V2 ban check in on_player_request failed."
+            )
+
+        # Keep the original verification/device-limit behavior.
+        if not (
+            pbid in serverdata.clients
+            and serverdata.clients[pbid].get(
+                "verified",
+                False,
+            )
+        ):
+            return False
+
         count = 0
-        if not (player.get_v1_account_id(
-        ) in serverdata.clients and
-                serverdata.clients[player.get_v1_account_id()]["verified"]):
-            return False
+
         for current_player in args[0].sessionplayers:
-            if current_player.get_v1_account_id() == player.get_v1_account_id():
+            try:
+                current_pbid = (
+                    current_player.get_v1_account_id()
+                )
+            except Exception:
+                current_pbid = None
+
+            if current_pbid == pbid:
                 count += 1
+
         if count >= settings["maxPlayersPerDevice"]:
-            bs.broadcastmessage("Reached max players limit per device",
-                                clients=[
-                                    player.inputdevice.client_id],
-                                transient=True, )
+            try:
+                _babase.screenmessage(
+                    "Reached max players limit per device",
+                    clients=[
+                        player.inputdevice.client_id
+                    ],
+                    transient=True,
+                )
+            except Exception:
+                pass
+
             return False
+
         return func(*args, **kwargs)
 
     return wrapper
 
 
-Session.on_player_request = on_player_request(Session.on_player_request)
+Session.on_player_request = on_player_request(
+    Session.on_player_request
+)
 
 
 def on_access_check_response(self, data):
