@@ -24,8 +24,6 @@ class textonmap:
             return
 
         self.index = 0
-        self._leaderboard_drawn = False
-        self._leaderboard_retry_scheduled = False
 
         self.highlights = (
             data.get(
@@ -451,58 +449,25 @@ class textonmap:
     # EXACT LEGACY LEADERBOARD
     # ========================================================
 
-    def _try_leaderboard(self):
-        """Wait for API 9 stats to populate, then draw once."""
-        if getattr(
-            self,
-            "_leaderboard_drawn",
-            False,
-        ):
-            return
-
-        if getattr(
-            self,
-            "_leaderboard_retry_scheduled",
-            False,
-        ):
-            return
-
-        try:
-            names = mystats.top3Name
-        except Exception:
-            names = []
-
-        if not names or len(names) < 3:
-            # Stats may be populated a little after textonmap starts.
-            # Schedule one retry; avoid stacking duplicate timers.
-            self._leaderboard_retry_scheduled = True
-
-            def retry():
-                self._leaderboard_retry_scheduled = False
-                self._try_leaderboard()
-
-            bs.timer(
-                2.0,
-                babase.Call(retry),
-            )
-            return
-
-        self._leaderboard_drawn = True
-        self._draw_leaderboard(names)
-
     def leaderBoard(self):
-        # Keep the original public method name so existing calls
-        # elsewhere in the server continue to work.
-        self._try_leaderboard()
+        try:
+            names = mystats.top5Name
+        except Exception:
+            return
 
-    def _draw_leaderboard(self, names):
-        """Exact legacy leaderboard visual layout."""
+        if len(names) <= 2:
+            return
 
-        # ----------------------------------------------------
-        # Exact legacy bars.
-        # ----------------------------------------------------
-        if setti["leaderboard"]["barsBehindName"]:
-            bars = (
+        cfg = setti.get(
+            "leaderboard",
+            {},
+        )
+
+        if cfg.get(
+            "barsBehindName",
+            False,
+        ):
+            for position, color in (
                 (
                     (-10, -205),
                     (0.9, 0.9, 0.9),
@@ -515,14 +480,14 @@ class textonmap:
                     (-10, -170),
                     (0.9, 0.9, 0.9),
                 ),
-            )
-
-            for position, color in bars:
+            ):
                 bs.newnode(
                     "image",
                     attrs={
                         "scale": (300, 33),
-                        "texture": bs.gettexture("bar"),
+                        "texture": bs.gettexture(
+                            "uiAtlas2"
+                        ),
                         "position": position,
                         "attach": "topRight",
                         "opacity": 0.5,
@@ -530,9 +495,6 @@ class textonmap:
                     },
                 )
 
-        # ----------------------------------------------------
-        # Exact legacy heading.
-        # ----------------------------------------------------
         bs.newnode(
             "text",
             attrs={
@@ -548,10 +510,7 @@ class textonmap:
             },
         )
 
-        # ----------------------------------------------------
-        # Exact legacy rows.
-        # ----------------------------------------------------
-        rows = (
+        entries = (
             (
                 "🥇 ",
                 names[0][:10],
@@ -569,11 +528,14 @@ class textonmap:
             ),
         )
 
-        for prefix, name, ypos in rows:
+        for prefix, name, ypos in entries:
             bs.newnode(
                 "text",
                 attrs={
-                    "text": prefix + name,
+                    "text": (
+                        prefix
+                        + name
+                    ),
                     "flatness": 1.0,
                     "h_align": "left",
                     "h_attach": "right",
@@ -584,4 +546,3 @@ class textonmap:
                     "color": (1.0, 1.0, 1.0),
                 },
             )
-

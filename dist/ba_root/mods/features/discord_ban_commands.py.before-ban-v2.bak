@@ -1,0 +1,370 @@
+from __future__ import annotations
+
+import _babase
+import _bascenev1
+import bascenev1 as bs
+import babase
+
+import json
+import os
+from typing import Any
+
+import discord
+from discord.ext import commands
+
+from playersdata import pdata
+from tools import logger
+
+
+ROOT_SETTING = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)),
+    "setting.json",
+)
+
+
+def _load_config() -> dict[str, Any]:
+    with open(ROOT_SETTING, "r", encoding="utf-8") as f:
+        root = json.load(f)
+
+    discord_cfg = root.get("discordbot", {})
+    command_cfg = discord_cfg.get("commandConfig", {})
+    return command_cfg.get("banSystem", {})
+
+
+CFG = _load_config()
+MESSAGES = CFG.get("messages", {})
+MIN_DURATION = int(CFG.get("min_duration_days", 1))
+MAX_LIST = int(CFG.get("max_list_entries", 10))
+
+
+def _disconnect_connected_account(account_id: str) -> None:
+    """Disconnect every current client matching a banned PB-ID."""
+
+    def _disconnect() -> None:
+        try:
+            roster = bs.get_game_roster()
+        except Exception:
+            return
+
+        for entry in roster:
+            if not isinstance(entry, dict):
+                continue
+
+            if str(entry.get("account_id")) != str(account_id):
+                continue
+
+            client_id = entry.get("client_id")
+
+            if isinstance(client_id, int) and client_id >= 0:
+                try:
+                    _bascenev1.disconnect_client(client_id)
+                except Exception:
+                    logger.log(
+                        f"Failed to disconnect banned client {client_id}.",
+                        mtype="sys",
+                    )
+
+    try:
+        _babase.pushcall(
+            babase.Call(_disconnect),
+            from_other_thread=True,
+        )
+    except Exception:
+        logger.log(
+            f"Failed to queue disconnect for {account_id}.",
+            mtype="sys",
+        )
+
+
+def _message(key: str, **values: Any) -> str:
+    template = str(MESSAGES[key])
+    return template.format(**values)
+
+
+def _has_staff_permission(ctx: commands.Context) -> bool:
+    permissions = getattr(ctx.author, "guild_permissions", None)
+
+    if permissions is None:
+        return False
+
+    for permission_name in CFG.get(
+        "required_discord_permissions",
+        ["administrator"],
+    ):
+        if bool(getattr(permissions, permission_name, False)):
+            return True
+
+    return False
+
+
+def _valid_pbid(pbid: str) -> bool:
+    return isinstance(pbid, str) and pbid.startswith("pb-") and len(pbid) >= 4
+
+
+def _get_ban_data() -> dict[str, Any]:
+    try:
+        data = pdata.get_blacklist()
+    except Exception:
+        data = {}
+
+    if not isinstance(data, dict):
+        return {}
+
+    ban = data.get("ban")
+    if not isinstance(ban, dict):
+        ban = {}
+
+    data["ban"] = ban
+    return data
+
+
+def _get_banned_ids() -> list[str]:
+    data = _get_ban_data()
+    ids = data.get("ban", {}).get("ids", [])
+
+    if isinstance(ids, dict):
+        return [str(value) for value in ids.keys()]
+
+    if isinstance(ids, (list, tuple, set)):
+        return [str(value) for value in ids]
+
+    return []
+
+
+async def _send_error(ctx: commands.Context, key: str) -> None:
+    await ctx.send(_message(key))
+
+
+async def ban_command(
+    ctx: commands.Context,
+    pbid: str | None = None,
+    days: str | None = None,
+    *,
+    reason: str | None = None,
+) -> None:
+    if not _has_staff_permission(ctx):
+        await _send_error(ctx, "no_permission")
+        return
+
+    if not pbid or not _valid_pbid(pbid):
+        await _send_error(ctx, "invalid_pbid")
+        return
+
+    if days is None:
+        await _send_error(ctx, "invalid_duration")
+        return
+
+    try:
+        duration = int(days)
+    except (TypeError, ValueError):
+        await _send_error(ctx, "invalid_duration")
+        return
+
+    if duration < MIN_DURATION:
+        await _send_error(ctx, "invalid_duration")
+        return
+
+    reason_text = (reason or "").strip()
+    if not reason_text:
+        await _send_error(ctx, "missing_reason")
+        return
+
+    banned_ids = _get_banned_ids()
+
+    if pbid in banned_ids:
+        await _send_error(ctx, "already_banned")
+        return
+
+    try:
+        pdata.ban_player(pbid, duration, reason_text)
+        pdata.update_blacklist()
+        _disconnect_connected_account(pbid)
+
+        logger.log(
+            f"Discord ban applied: {pbid} for {duration} day(s).",
+            mtype="sys",
+        )
+
+        await ctx.send(
+            _message(
+                "ban_success",
+                pbid=pbid,
+                days=duration,
+                reason=reason_text,
+            )
+        )
+    except Exception:
+        logger.log(
+            f"Discord ban operation failed for {pbid}.",
+            mtype="sys",
+        )
+        await _send_error(ctx, "generic_error")
+
+
+async def unban_command(
+    ctx: commands.Context,
+    pbid: str | None = None,
+) -> None:
+    if not _has_staff_permission(ctx):
+        await _send_error(ctx, "no_permission")
+        return
+
+    if not pbid or not _valid_pbid(pbid):
+        await _send_error(ctx, "invalid_pbid")
+        return
+
+    if pbid not in _get_banned_ids():
+        await _send_error(ctx, "not_banned")
+        return
+
+    try:
+        pdata.unban_player(pbid)
+        pdata.update_blacklist()
+
+        logger.log(
+            f"Discord ban removed: {pbid}.",
+            mtype="sys",
+        )
+
+        await ctx.send(
+            _message(
+                "unban_success",
+                pbid=pbid,
+            )
+        )
+    except Exception:
+        logger.log(
+            f"Discord unban operation failed for {pbid}.",
+            mtype="sys",
+        )
+        await _send_error(ctx, "generic_error")
+
+
+async def bancheck_command(
+    ctx: commands.Context,
+    pbid: str | None = None,
+) -> None:
+    if not _has_staff_permission(ctx):
+        await _send_error(ctx, "no_permission")
+        return
+
+    if not pbid or not _valid_pbid(pbid):
+        await _send_error(ctx, "invalid_pbid")
+        return
+
+    if pbid in _get_banned_ids():
+        await ctx.send(
+            _message(
+                "bancheck_banned",
+                pbid=pbid,
+            )
+        )
+    else:
+        await ctx.send(
+            _message(
+                "bancheck_clear",
+                pbid=pbid,
+            )
+        )
+
+
+async def banlist_command(
+    ctx: commands.Context,
+) -> None:
+    if not _has_staff_permission(ctx):
+        await _send_error(ctx, "no_permission")
+        return
+
+    banned_ids = _get_banned_ids()
+    recent_ids = banned_ids[-MAX_LIST:]
+
+    if not recent_ids:
+        await _send_error(ctx, "banlist_empty")
+        return
+
+    lines = [
+        _message(
+            "banlist_entry",
+            pbid=pbid,
+        )
+        for pbid in recent_ids
+    ]
+
+    await ctx.send(
+        _message(
+            "banlist_header",
+            count=len(recent_ids),
+        )
+        + "\n"
+        + "\n".join(lines)
+    )
+
+
+def register(bot: commands.Bot) -> None:
+    command_cfg = _load_config()
+
+    configured_names = {
+        item: item
+        for item in (
+            "ban",
+            "unban",
+            "bancheck",
+            "banlist",
+        )
+    }
+
+    category = command_cfg
+
+    async def ban_callback(
+        ctx: commands.Context,
+        pbid: str | None = None,
+        days: str | None = None,
+        *,
+        reason: str | None = None,
+    ) -> None:
+        await ban_command(ctx, pbid, days, reason=reason)
+
+    async def unban_callback(
+        ctx: commands.Context,
+        pbid: str | None = None,
+    ) -> None:
+        await unban_command(ctx, pbid)
+
+    async def bancheck_callback(
+        ctx: commands.Context,
+        pbid: str | None = None,
+    ) -> None:
+        await bancheck_command(ctx, pbid)
+
+    async def banlist_callback(
+        ctx: commands.Context,
+    ) -> None:
+        await banlist_command(ctx)
+
+    callbacks = {
+        "ban": ban_callback,
+        "unban": unban_callback,
+        "bancheck": bancheck_callback,
+        "banlist": banlist_callback,
+    }
+
+    for key, callback in callbacks.items():
+        existing = bot.get_command(configured_names[key])
+        if existing is not None:
+            bot.remove_command(existing.name)
+
+        command_meta = category.get("messages", {})
+        help_text = str(
+            command_meta.get(
+                key,
+                f"Canonical {key} command.",
+            )
+        )
+
+        bot.add_command(
+            commands.Command(
+                callback,
+                name=configured_names[key],
+                help=help_text,
+            )
+        )

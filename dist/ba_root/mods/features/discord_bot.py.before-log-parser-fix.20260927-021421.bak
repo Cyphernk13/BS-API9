@@ -9,7 +9,6 @@ from threading import Thread
 import _babase
 import discord
 from discord.ext.commands import Bot
-from discord.ext import commands as _discord_commands_namespace
 
 import babase
 import bascenev1 as bs
@@ -18,7 +17,7 @@ from babase._general import Call
 logging.getLogger('asyncio').setLevel(logging.WARNING)
 intents = discord.Intents().all()
 
-client = Bot(command_prefix=lambda *_args: bot_prefix, intents=intents)
+client = Bot(command_prefix=lambda *_args: [], intents=intents)
 # client = discord.Client()
 
 
@@ -42,8 +41,6 @@ channel_history_limit = 20
 state_file = ""
 
 discord_messages = {}
-
-commands = _discord_commands_namespace
 
 ui_config = {}
 server_connect = {}
@@ -166,6 +163,8 @@ async def on_ready():
             id=client.user.id,
         )
     )
+
+    client.command_prefix = bot_prefix
 
     await verify_channel()
 
@@ -2285,403 +2284,6 @@ def _format_compact_unknown(raw):
     )
 
 
-def _normalize_log_event(raw):
-    """
-    Logger.py currently sends events in this format:
-
-        ***chat:***message
-        ***playerjoin:***player | pbid | joined server
-        ***sys:***technical details
-
-    Normalize that into:
-        (event_type, payload)
-    """
-
-    text = _compact_clean(raw)
-
-    wrapped = re.match(
-        r"^\*{3}\s*([A-Za-z0-9_ -]+?)\s*:\*{3}(.*)$",
-        text,
-        flags=re.DOTALL,
-    )
-
-    if wrapped:
-        event_type = (
-            wrapped.group(1)
-            .strip()
-            .lower()
-        )
-
-        payload = (
-            wrapped.group(2)
-            .strip()
-        )
-
-        return event_type, payload
-
-    # Compatibility with unwrapped events.
-    match = re.match(
-        r"^([A-Za-z0-9_ -]+):\s*(.*)$",
-        text,
-        flags=re.DOTALL,
-    )
-
-    if match:
-        return (
-            match.group(1).strip().lower(),
-            match.group(2).strip(),
-        )
-
-    return "", text
-
-
-def _extract_field(text, names):
-    for name in names:
-        match = re.search(
-            rf"{re.escape(name)}\s*:\s*([^\s|,]+)",
-            text,
-            flags=re.IGNORECASE,
-        )
-
-        if match:
-            return match.group(1).strip()
-
-    return ""
-
-
-def _extract_pbid_anywhere(text):
-    match = re.search(
-        r"\b(pb-[A-Za-z0-9+/=_-]+|a-\d+)\b",
-        text,
-    )
-
-    return (
-        match.group(1)
-        if match
-        else ""
-    )
-
-
-def _format_join_payload(payload):
-    pieces = [
-        _compact_clean(part)
-        for part in payload.split("|")
-    ]
-
-    pieces = [
-        part
-        for part in pieces
-        if part
-    ]
-
-    pbid = _extract_pbid_anywhere(
-        payload
-    )
-
-    name = ""
-
-    # logger format is generally:
-    # player-name | pbid | joined server
-    if pieces:
-        candidate = pieces[0]
-
-        if not (
-            candidate.startswith("pb-")
-            or candidate.startswith("a-")
-        ):
-            name = _deduplicate_name(
-                candidate
-            )
-
-    if not name:
-        name = _find_player_name(
-            pbid
-        )
-
-    if not name:
-        name = "<unknown>"
-
-    line = (
-        f"{_compact_icon('join', '🟢')} "
-        f"**{_compact_label('playerJoined', 'PLAYER JOIN')}** "
-        f"{_compact_code(name)}"
-    )
-
-    if (
-        pbid
-        and log_config.get(
-            "showPlayerIdentifiers",
-            True,
-        )
-    ):
-        line += (
-            f" · "
-            f"{_compact_code('PBID: ' + pbid)}"
-        )
-
-    return (
-        line + _compact_time(),
-        _compact_color(
-            "join",
-            0x57F287,
-        ),
-    )
-
-
-def _format_leave_payload(payload):
-    pieces = [
-        _compact_clean(part)
-        for part in payload.split("|")
-    ]
-
-    pieces = [
-        part
-        for part in pieces
-        if part
-    ]
-
-    pbid = _extract_pbid_anywhere(
-        payload
-    )
-
-    name = ""
-
-    if pieces:
-        candidate = pieces[0]
-
-        if not (
-            candidate.startswith("pb-")
-            or candidate.startswith("a-")
-        ):
-            name = _deduplicate_name(
-                candidate
-            )
-
-    if not name:
-        name = _find_player_name(
-            pbid
-        )
-
-    if not name:
-        name = "<unknown>"
-
-    line = (
-        f"{_compact_icon('leave', '🔴')} "
-        f"**{_compact_label('playerLeft', 'PLAYER LEFT')}** "
-        f"{_compact_code(name)}"
-    )
-
-    if (
-        pbid
-        and log_config.get(
-            "showPlayerIdentifiers",
-            True,
-        )
-    ):
-        line += (
-            f" · "
-            f"{_compact_code('PBID: ' + pbid)}"
-        )
-
-    return (
-        line + _compact_time(),
-        _compact_color(
-            "leave",
-            0xED4245,
-        ),
-    )
-
-
-def _format_chat_payload(payload):
-    pieces = [
-        _compact_clean(part)
-        for part in payload.split("|")
-    ]
-
-    pieces = [
-        piece
-        for piece in pieces
-        if piece
-    ]
-
-    if not pieces:
-        return None
-
-    message = pieces[-1]
-
-    if not message:
-        return None
-
-    pbid = _extract_pbid_anywhere(
-        " ".join(pieces[:3])
-    )
-
-    name = (
-        _find_player_name(
-            pbid
-        )
-        if pbid
-        else ""
-    )
-
-    # Typical legacy layout:
-    # PBID | display-name | display-name | message
-    if not name and len(pieces) >= 3:
-        name = _deduplicate_name(
-            pieces[-2]
-        )
-
-    if not name and len(pieces) >= 2:
-        name = _deduplicate_name(
-            pieces[-2]
-        )
-
-    if not name:
-        name = "Player"
-
-    line = (
-        f"{_compact_icon('chat', '💬')} "
-        f"**{_compact_label('chat', 'CHAT')}** "
-        f"{_compact_code(name)}: "
-        f"{_compact_message(message)}"
-    )
-
-    return (
-        line + _compact_time(),
-        _compact_color(
-            "chat",
-            0x5865F2,
-        ),
-    )
-
-
-def _format_sys_payload(payload):
-    """
-    Render technical sys records compactly.
-
-    Example visual result:
-
-    🧾 PLAYER INFO `Cypher13` · `V2` ·
-    `PBID: pb-...` · `IP: ...` · `Device: ...`
-    """
-
-    pbid = _extract_pbid_anywhere(
-        payload
-    )
-
-    ip = _extract_field(
-        payload,
-        (
-            "ip",
-            "IP",
-        ),
-    )
-
-    device = _extract_field(
-        payload,
-        (
-            "device id",
-            "device_id",
-            "device",
-        ),
-    )
-
-    name = _find_player_name(
-        pbid
-    )
-
-    # V2 may appear in the raw account/type data.
-    is_v2 = bool(
-        re.search(
-            r"\bv2\b",
-            payload,
-            flags=re.IGNORECASE,
-        )
-    )
-
-    parts = []
-
-    if name:
-        parts.append(
-            _compact_code(name)
-        )
-
-    if is_v2:
-        parts.append(
-            _compact_code("V2")
-        )
-
-    if (
-        pbid
-        and log_config.get(
-            "showPlayerIdentifiers",
-            True,
-        )
-    ):
-        parts.append(
-            _compact_code(
-                "PBID: " + pbid
-            )
-        )
-
-    if (
-        ip
-        and log_config.get(
-            "showIPAddresses",
-            True,
-        )
-    ):
-        parts.append(
-            _compact_code(
-                "IP: " + ip
-            )
-        )
-
-    if (
-        device
-        and log_config.get(
-            "showDeviceIdentifiers",
-            True,
-        )
-    ):
-        parts.append(
-            _compact_code(
-                "Device: " + device
-            )
-        )
-
-    # When the record doesn't contain the recognizable fields,
-    # don't throw away the technical information; show it compactly.
-    if not parts:
-        clean = _compact_message(
-            payload
-        )
-
-        if clean:
-            parts.append(
-                _compact_code(
-                    clean[:250]
-                )
-            )
-
-    if not parts:
-        return None
-
-    line = (
-        f"{_compact_icon('info', '🧾')} "
-        f"**{_compact_label('playerInfo', 'PLAYER INFO')}** "
-        + " · ".join(parts)
-    )
-
-    return (
-        line + _compact_time(),
-        _compact_color(
-            "info",
-            0x99AAB5,
-        ),
-    )
-
-
 def _compact_log(raw):
     raw = _compact_clean(
         raw
@@ -2690,57 +2292,54 @@ def _compact_log(raw):
     if not raw:
         return None
 
-    event_type, payload = (
-        _normalize_log_event(raw)
-    )
-
     lowered = raw.lower()
 
-    # --------------------------------------------------------
-    # Structured logger event types.
-    # --------------------------------------------------------
-
-    if event_type == "playerjoin":
+    # Use substring detection so legacy logs with a prefix/timestamp
+    # still get recognized instead of falling through to EVENT.
+    if re.search(
+        r"(?:^|\s)playerjoin:",
+        raw,
+        flags=re.IGNORECASE,
+    ):
         if not log_config.get(
             "showPlayerJoin",
             True,
         ):
             return None
 
-        return _format_join_payload(
-            payload
+        return _format_compact_join(
+            raw[
+                max(
+                    raw.lower().find(
+                        "playerjoin:"
+                    ),
+                    0,
+                ):
+            ]
         )
 
-    if event_type in {
-        "chat",
-        "message",
-    }:
+    if re.search(
+        r"(?:^|\s)chat:",
+        raw,
+        flags=re.IGNORECASE,
+    ):
         if not log_config.get(
             "showChat",
             True,
         ):
             return None
 
-        return _format_chat_payload(
-            payload
+        index = lowered.find(
+            "chat:"
         )
 
-    if event_type in {
-        "sys",
-        "system",
-    }:
-        return _format_sys_payload(
-            payload
+        return _format_compact_chat(
+            raw[index:]
         )
 
-    # --------------------------------------------------------
-    # Discord bridge.
-    # --------------------------------------------------------
-
-    if (
+    if lowered.startswith(
         "discord broadcast by"
-        in lowered
-    ):
+    ) or "discord broadcast by" in lowered:
         if not log_config.get(
             "showDiscordBridge",
             True,
@@ -2751,33 +2350,9 @@ def _compact_log(raw):
             raw
         )
 
-    # --------------------------------------------------------
-    # Server lifecycle.
-    # --------------------------------------------------------
-
     if (
-        "server started"
-        in lowered
-    ):
-        if not log_config.get(
-            "showServerEvents",
-            True,
-        ):
-            return None
-
-        return _format_compact_server(
-            "Server started"
-        )
-
-    # --------------------------------------------------------
-    # Player leave / disconnect.
-    # --------------------------------------------------------
-
-    if (
-        "left server"
-        in lowered
-        or "disconnected"
-        in lowered
+        "left server" in lowered
+        or "disconnected" in lowered
     ):
         if not log_config.get(
             "showPlayerLeave",
@@ -2785,76 +2360,50 @@ def _compact_log(raw):
         ):
             return None
 
-        pbid = _extract_pbid_anywhere(
-            raw
-        )
+        clean = raw
 
-        name = _find_player_name(
-            pbid
-        )
+        # Strip leading logger prefix.
+        if ":" in clean:
+            prefix = clean.split(
+                ":",
+                1,
+            )[0].lower()
 
-        if not name:
-            name = raw
-
-            # Remove the technical suffix.
-            if "|" in name:
-                name = name.split(
-                    "|",
-                    1
-                )[0]
-
-            if ":" in name:
-                prefix, remainder = (
-                    name.split(
-                        ":",
-                        1
-                    )
-                )
-
-                if prefix.lower() in {
+            if (
+                prefix in {
                     "playerleft",
                     "leave",
-                }:
-                    name = remainder
+                }
+            ):
+                clean = clean.split(
+                    ":",
+                    1,
+                )[1].strip()
 
-            name = _deduplicate_name(
-                name
-            )
-
-        line = (
-            f"{_compact_icon('leave', '🔴')} "
-            f"**{_compact_label('playerLeft', 'PLAYER LEFT')}** "
-            f"{_compact_code(name)}"
-        )
-
-        if (
-            pbid
-            and log_config.get(
-                "showPlayerIdentifiers",
-                True,
-            )
-        ):
-            line += (
-                f" · "
-                f"{_compact_code('PBID: ' + pbid)}"
-            )
+        if "|" in clean:
+            clean = clean.split(
+                "|",
+                1,
+            )[0].strip()
 
         return (
-            line + _compact_time(),
+            (
+                f"{_compact_icon('leave', '🔴')} "
+                f"**{_compact_label('playerLeft', 'PLAYER LEFT')}** "
+                f"{_compact_code(clean)}"
+                f"{_compact_time()}"
+            ),
             _compact_color(
                 "leave",
                 0xED4245,
             ),
         )
 
-    # --------------------------------------------------------
-    # Moderation.
-    # --------------------------------------------------------
-
     if any(
         term in lowered
         for term in (
             "kicked",
+            " kick ",
             "kick ",
             "banned",
             " ban ",
@@ -2873,15 +2422,40 @@ def _compact_log(raw):
             raw
         )
 
-    # --------------------------------------------------------
-    # Host message.
-    # --------------------------------------------------------
-
     if (
-        event_type == "host msg"
-        or lowered.startswith(
-            "host msg:"
+        lowered == "sys:server started"
+        or lowered.endswith(
+            "server started"
         )
+    ):
+        if not log_config.get(
+            "showServerEvents",
+            True,
+        ):
+            return None
+
+        return _format_compact_server(
+            raw
+        )
+
+    if re.search(
+        r"(?:^|\s)sys:",
+        raw,
+        flags=re.IGNORECASE,
+    ):
+        return _format_compact_sys(
+            raw[
+                max(
+                    lowered.find(
+                        "sys:"
+                    ),
+                    0,
+                ):
+            ]
+        )
+
+    if lowered.startswith(
+        "host msg:"
     ):
         if not log_config.get(
             "showChat",
@@ -2889,20 +2463,19 @@ def _compact_log(raw):
         ):
             return None
 
-        if ":" in raw:
-            message = raw.split(
+        message = _compact_message(
+            raw.split(
                 ":",
                 1,
             )[1]
-        else:
-            message = payload
+        )
 
         return (
             (
                 f"{_compact_icon('chat', '💬')} "
                 f"**{_compact_label('chat', 'CHAT')}** "
                 f"{_compact_code('HOST')}: "
-                f"{_compact_message(message)}"
+                f"{message}"
                 f"{_compact_time()}"
             ),
             _compact_color(
@@ -2910,10 +2483,6 @@ def _compact_log(raw):
                 0x5865F2,
             ),
         )
-
-    # --------------------------------------------------------
-    # Unknown event.
-    # --------------------------------------------------------
 
     if not log_config.get(
         "showUnknownEvents",
@@ -2924,7 +2493,6 @@ def _compact_log(raw):
     return _format_compact_unknown(
         raw
     )
-
 
 async def send_logs():
     global logs
@@ -2983,40 +2551,38 @@ async def send_logs():
     )
 
     while not client.is_closed():
-
         if logs:
-            pending = logs[
-                :max_events
-            ]
-
-            del logs[
-                :len(pending)
-            ]
+            pending = logs[:max_events]
+            del logs[:len(pending)]
 
             formatted = []
 
             for raw in pending:
                 try:
-                    item = _compact_log(
+                    result = _compact_log(
                         raw
                     )
                 except BaseException:
                     logging.exception(
-                        "Discord log parser failed."
+                        "Compact Discord log formatter failed."
                     )
-                    item = None
+                    result = None
 
-                if item:
+                if result:
                     formatted.append(
-                        item
+                        result
                     )
 
             if formatted:
+                # One compact embed for the whole batch.
+                # No title and no footer: Discord already shows the
+                # bot identity and message timestamp.
+                lines = []
 
-                lines = [
-                    item[0]
-                    for item in formatted
-                ]
+                for description, _color in formatted:
+                    lines.append(
+                        description
+                    )
 
                 body = "\n".join(
                     lines
@@ -3030,6 +2596,8 @@ async def send_logs():
                         + "..."
                     )
 
+                # Use the first event's category colour for the
+                # subtle embed accent; content itself remains compact.
                 color = formatted[0][1]
 
                 embed = discord.Embed(
@@ -3039,10 +2607,9 @@ async def send_logs():
                     ),
                 )
 
-                # Deliberately no repetitive title/footer.
-                embed.set_footer(
-                    text=""
-                )
+                # Explicitly leave title/footer empty.
+                embed.title = discord.Embed.Empty
+                embed._footer = {}
 
                 try:
                     await channel.send(
@@ -3056,7 +2623,6 @@ async def send_logs():
         await asyncio.sleep(
             interval
         )
-
 
 
 

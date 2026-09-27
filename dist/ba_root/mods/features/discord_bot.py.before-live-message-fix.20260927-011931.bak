@@ -1,0 +1,391 @@
+import asyncio
+import logging
+from threading import Thread
+
+import _babase
+import discord
+from discord.ext.commands import Bot
+
+import babase
+import bascenev1 as bs
+from babase._general import Call
+
+logging.getLogger('asyncio').setLevel(logging.WARNING)
+intents = discord.Intents().all()
+
+client = Bot(command_prefix=lambda *_args: [], intents=intents)
+# client = discord.Client()
+
+
+stats = {}
+livestatsmsgs = []
+
+# Runtime configuration injected by custom_hooks.py from setting.json.
+logsChannelID = 0
+liveStatsChannelID = 0
+notifyChannelID = 0
+complaintChannelID = 0
+guildID = 0
+
+liveChat = True
+bot_prefix = ""
+token = ""
+
+refresh_interval = 10.0
+stats_refresh_interval = 8.0
+channel_history_limit = 20
+
+discord_messages = {}
+
+# Discord asyncio thread state.
+_discord_bot_thread = None
+_discord_bot_started = False
+_refresh_task = None
+_logs_task = None
+
+logs = []
+
+
+def push_log(msg):
+    global logs
+    logs.append(msg)
+
+
+def init():
+    global _discord_bot_thread
+    global _discord_bot_started
+
+    if _discord_bot_started:
+        return
+
+    if not token:
+        raise RuntimeError("Discord token is empty.")
+
+    _discord_bot_started = True
+
+    def run_bot():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        try:
+            loop.run_until_complete(client.start(token))
+        except BaseException:
+            logging.exception("Discord bot stopped.")
+        finally:
+            try:
+                if not client.is_closed():
+                    loop.run_until_complete(client.close())
+            except BaseException:
+                pass
+
+            try:
+                loop.close()
+            except BaseException:
+                pass
+
+    _discord_bot_thread = Thread(
+        target=run_bot,
+        name="DiscordBot",
+        daemon=True,
+    )
+    _discord_bot_thread.start()
+
+
+
+channel = None
+
+
+@client.event
+@client.event
+async def on_message(message):
+    global channel
+
+    if message.author.bot:
+        return
+
+    channel = message.channel
+
+    if message.channel.id == logsChannelID:
+        _babase.pushcall(
+            Call(bs.chatmessage, message.content),
+            from_other_thread=True,
+        )
+
+    # Keep prefix commands functional for the next phase.
+    await client.process_commands(message)
+
+
+
+@client.event
+@client.event
+async def on_ready():
+    template = discord_messages.get(
+        "login",
+        "Discord bot logged in as: {name}, {id}",
+    )
+
+    print(
+        template.format(
+            name=client.user.name,
+            id=client.user.id,
+        )
+    )
+
+    # Set the configured prefix after Bot has been constructed.
+    client.command_prefix = bot_prefix
+
+    await verify_channel()
+
+
+
+async def verify_channel():
+    global livestatsmsgs
+    global _refresh_task
+    global _logs_task
+
+    channel = client.get_channel(liveStatsChannelID)
+
+    if channel is None:
+        try:
+            channel = await client.fetch_channel(liveStatsChannelID)
+        except BaseException:
+            logging.exception("Unable to access the configured live-stats channel.")
+            return
+
+    bot_messages = []
+
+    try:
+        async for msg in channel.history(limit=channel_history_limit):
+            if msg.author.id == client.user.id:
+                bot_messages.append(msg)
+    except BaseException:
+        logging.exception("Unable to read the configured live-stats channel history.")
+        return
+
+    bot_messages.reverse()
+
+    # The live-stats channel is dedicated to the two continuously edited
+    # messages, so use the two most recent bot messages.
+    livestatsmsgs = bot_messages[-2:]
+
+    while len(livestatsmsgs) < 2:
+        new_msg = await channel.send(
+            discord_messages.get(
+                "live_stats_placeholder",
+                "",
+            )
+        )
+        livestatsmsgs.append(new_msg)
+
+    if _refresh_task is None or _refresh_task.done():
+        _refresh_task = asyncio.create_task(refresh_stats())
+
+    if _logs_task is None or _logs_task.done():
+        _logs_task = asyncio.create_task(send_logs())
+
+    # client.loop.create_task(refresh_stats())
+    # client.loop.create_task(send_logs())
+
+
+async def refresh_stats():
+    await client.wait_until_ready()
+
+    while not client.is_closed():
+        if len(livestatsmsgs) >= 2:
+            try:
+                await livestatsmsgs[0].edit(
+                    content=get_live_players_msg()
+                )
+                await livestatsmsgs[1].edit(
+                    content=get_chats()
+                )
+            except BaseException:
+                logging.exception("Unable to update live Discord statistics.")
+
+        await asyncio.sleep(max(float(refresh_interval), 1.0))
+
+
+
+async def send_logs():
+    global logs
+
+    await client.wait_until_ready()
+
+    channel = client.get_channel(logsChannelID)
+
+    if channel is None:
+        try:
+            channel = await client.fetch_channel(logsChannelID)
+        except BaseException:
+            logging.exception("Unable to access the configured logs channel.")
+            return
+
+    while not client.is_closed():
+        if logs:
+            pending = logs
+            logs = []
+
+            msg = "\n".join(str(item) for item in pending)
+
+            # Discord's normal message limit is larger than this batch size;
+            # keeping chunks below it avoids one oversized log message.
+            chunk_size = 1900
+
+            for start in range(0, len(msg), chunk_size):
+                chunk = msg[start:start + chunk_size]
+                if chunk:
+                    try:
+                        await channel.send(chunk)
+                    except BaseException:
+                        logging.exception("Unable to send Discord logs.")
+                        break
+
+        await asyncio.sleep(max(float(refresh_interval), 1.0))
+
+
+
+def get_live_players_msg():
+    global stats
+
+    header = discord_messages.get("live_stats_header", "")
+    players_header = discord_messages.get("players_header", "")
+    no_players = discord_messages.get("no_players", "")
+    current_next_template = discord_messages.get(
+        "current_next_template",
+        "{current} / {next}",
+    )
+
+    msg = ""
+
+    try:
+        for account_id in stats["roster"]:
+            name = stats["roster"][account_id]["name"]
+            device_id = stats["roster"][account_id]["device_id"]
+
+            msg += (
+                str(account_id)
+                + " -> "
+                + str(name)
+                + " -> "
+                + str(device_id)
+                + " \n"
+            )
+    except BaseException:
+        pass
+
+    if not msg:
+        msg = no_players + "\n"
+
+    try:
+        current = stats["playlist"]["current"]
+        next_map = stats["playlist"]["next"]
+    except BaseException:
+        current = ""
+        next_map = ""
+
+    msg_1 = header + "\n\n" + players_header + "\n\n"
+    msg_2 = current_next_template.format(
+        current=current,
+        next=next_map,
+    )
+
+    return msg_1 + msg + msg_2
+
+
+
+def get_chats():
+    header = discord_messages.get("live_chat_header", "")
+    empty = discord_messages.get("chat_empty", "")
+    disabled = discord_messages.get("chat_disabled", "")
+
+    if not liveChat:
+        return disabled
+
+    msg = ""
+
+    try:
+        for msg_ in stats["chats"]:
+            msg += str(msg_) + "\n"
+    except BaseException:
+        pass
+
+    if not msg:
+        msg = empty
+
+    return header + "\n\n" + msg
+
+
+
+class BsDataThread(object):
+    def __init__(self):
+        # Do not query ClassicAppMode immediately during custom_hooks
+        # bootstrap; the app mode may not be active yet.
+        # The repeating Ballistica timer performs the first refresh shortly
+        # after startup when the game state is available.
+        self.Timer = bs.AppTimer(
+            stats_refresh_interval,
+            babase.Call(self.refreshStats),
+            repeat=True,
+        )
+        # self.Timerr = bs.Timer( 10,babase.Call(self.refreshLeaderboard),timetype = babase.TimeType.REAL,repeat = True)
+
+    # def refreshLeaderboard(self):
+    #     global leaderboard
+    #     global top200
+    #     _t200={}
+    #     f=open(statsfile)
+    #     lboard=json.loads(f.read())
+    #     leaderboard=lboard
+    #     entries = [(a['scores'], a['kills'], a['deaths'], a['games'], a['name_html'], a['aid'],a['last_seen']) for a in lboard.values()]
+
+    #     entries.sort(reverse=True)
+    #     rank=0
+    #     for entry in entries:
+    #         rank+=1
+    #         if rank >201:
+    #             break
+    #         _t200[entry[5]]={"rank":rank,"scores":int(entry[0]),"games":int(entry[3]),"kills":int(entry[1]),"deaths":int(entry[2]),"name_html":entry[4],"last_seen":entry[6]}
+    #         top200=_t200
+
+    def refreshStats(self):
+
+        liveplayers = {}
+        nextMap = ''
+        currentMap = ''
+        global stats
+
+        for i in bs.get_game_roster():
+            try:
+                liveplayers[i['account_id']] = {
+                    'name': i['players'][0]['name_full'],
+                    'client_id': i['client_id'],
+                    'device_id': i['display_string']}
+            except:
+                liveplayers[i['account_id']] = {
+                    'name': "<in-lobby>", 'clientid': i['client_id'],
+                    'device_id': i['display_string']}
+        try:
+            nextMap = bs.get_foreground_host_session(
+            ).get_next_game_description().evaluate()
+
+            current_game_spec = bs.get_foreground_host_session()._current_game_spec
+            gametype = current_game_spec['resolved_type']
+
+            currentMap = gametype.get_settings_display_string(
+                current_game_spec).evaluate()
+        except:
+            pass
+        minigame = {'current': currentMap, 'next': nextMap}
+        # system={'cpu':p.cpu_percent(),'ram':p.virtual_memory().percent}
+        # system={'cpu':80,'ram':34}
+        # stats['system']=system
+        stats['roster'] = liveplayers
+        try:
+            stats['chats'] = bs.get_chat_messages()
+        except RuntimeError:
+            # ClassicAppMode can briefly be inactive during startup/map
+            # transitions. Keep the Discord stats system alive in that case.
+            stats['chats'] = []
+        stats['playlist'] = minigame
+
+        # stats['teamInfo']=self.getTeamInfo()

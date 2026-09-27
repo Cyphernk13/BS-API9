@@ -1,0 +1,1918 @@
+from __future__ import annotations
+
+import _babase
+import _bascenev1
+import bascenev1 as bs
+import babase
+
+import json
+import time
+import uuid
+
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+from zoneinfo import ZoneInfo
+
+from discord.ext import commands
+
+from playersdata import pdata
+from tools import logger
+from features import discord_mute_commands
+
+
+ROOT_MODS = Path(__file__).resolve().parents[1]
+
+SETTING_PATH = (
+    ROOT_MODS / "setting.json"
+)
+
+
+def _load_config() -> dict[str, Any]:
+    with SETTING_PATH.open(
+        "r",
+        encoding="utf-8",
+    ) as f:
+        root = json.load(f)
+
+    return (
+        root
+        .get("discordbot", {})
+        .get("commandConfig", {})
+        .get("banSystem", {})
+    )
+
+
+CFG = _load_config()
+
+MESSAGES = CFG.get(
+    "messages",
+    {},
+)
+
+MIN_DURATION = int(
+    CFG.get(
+        "min_duration_days",
+        1,
+    )
+)
+
+MAX_LIST = int(
+    CFG.get(
+        "max_list_entries",
+        10,
+    )
+)
+
+MAX_DETAILS = int(
+    CFG.get(
+        "max_details_accounts",
+        25,
+    )
+)
+
+DISPLAY_TZ = ZoneInfo(
+    str(
+        CFG.get(
+            "display_timezone",
+            "UTC",
+        )
+    )
+)
+
+RECORD_PATH = (
+    ROOT_MODS
+    / str(
+        CFG.get(
+            "record_file",
+            "playersdata/ban_records.json",
+        )
+    )
+)
+
+RECORD_PATH.parent.mkdir(
+    parents=True,
+    exist_ok=True,
+)
+
+
+def _message(
+    key: str,
+    **values: Any,
+) -> str:
+    # Keep message templates compatible with both naming conventions.
+    values = dict(values)
+
+    if "pbid" not in values and "target" in values:
+        values["pbid"] = values["target"]
+
+    if "target" not in values and "pbid" in values:
+        values["target"] = values["pbid"]
+
+    return str(
+        MESSAGES[key]
+    ).format(**values)
+
+
+def _staff(ctx: commands.Context) -> bool:
+    permissions = getattr(
+        ctx.author,
+        "guild_permissions",
+        None,
+    )
+
+    if permissions is None:
+        return False
+
+    for name in CFG.get(
+        "required_discord_permissions",
+        ["administrator"],
+    ):
+        if bool(
+            getattr(
+                permissions,
+                name,
+                False,
+            )
+        ):
+            return True
+
+    return False
+
+
+def _now() -> float:
+    return time.time()
+
+
+def _format_time(
+    epoch: float | int | None,
+) -> str:
+    if epoch is None:
+        return "unknown"
+
+    try:
+        return (
+            datetime.fromtimestamp(
+                float(epoch),
+                timezone.utc,
+            )
+            .astimezone(DISPLAY_TZ)
+            .strftime(
+                "%d %b %Y %H:%M %Z"
+            )
+        )
+    except Exception:
+        return "unknown"
+
+
+def _valid_pbid(
+    value: str,
+) -> bool:
+    return (
+        isinstance(value, str)
+        and value.startswith("pb-")
+        and len(value) >= 4
+    )
+
+
+def _profiles() -> dict[str, Any]:
+    try:
+        value = pdata.get_profiles()
+    except Exception:
+        return {}
+
+    return (
+        value
+        if isinstance(value, dict)
+        else {}
+    )
+
+
+def _profile(
+    pbid: str,
+) -> dict[str, Any] | None:
+    value = _profiles().get(
+        pbid
+    )
+
+    return (
+        value
+        if isinstance(value, dict)
+        else None
+    )
+
+
+def _name(
+    pbid: str,
+) -> str:
+    profile = _profile(
+        pbid
+    )
+
+    if not profile:
+        return "Unknown"
+
+    return str(
+        profile.get(
+            "name",
+            "Unknown",
+        )
+    ).replace(
+        "`",
+        "",
+    )
+
+
+def _identity(
+    pbid: str,
+) -> tuple[str, str]:
+    profile = _profile(
+        pbid
+    ) or {}
+
+    return (
+        str(
+            profile.get(
+                "lastIP",
+                "",
+            )
+            or ""
+        ),
+        str(
+            profile.get(
+                "deviceUUID",
+                "",
+            )
+            or ""
+        ),
+    )
+
+
+def _related_accounts(
+    ip: str | None = None,
+    device: str | None = None,
+) -> dict[str, list[str]]:
+    result: dict[
+        str,
+        list[str],
+    ] = {}
+
+    for pbid, profile in _profiles().items():
+        if not isinstance(
+            profile,
+            dict,
+        ):
+            continue
+
+        matched: list[str] = []
+
+        if (
+            ip
+            and str(
+                profile.get(
+                    "lastIP",
+                    "",
+                )
+                or ""
+            ) == ip
+        ):
+            matched.append("ip")
+
+        if (
+            device
+            and str(
+                profile.get(
+                    "deviceUUID",
+                    "",
+                )
+                or ""
+            ) == device
+        ):
+            matched.append("device")
+
+        if matched:
+            result[
+                str(pbid)
+            ] = matched
+
+    return result
+
+
+def _new_store() -> dict[str, Any]:
+    return {
+        "version": 2,
+        "cases": {},
+    }
+
+
+def _load_store() -> dict[str, Any]:
+    if not RECORD_PATH.exists():
+        return _new_store()
+
+    try:
+        with RECORD_PATH.open(
+            "r",
+            encoding="utf-8",
+        ) as f:
+            data = json.load(f)
+
+        if not isinstance(
+            data,
+            dict,
+        ):
+            return _new_store()
+
+        if not isinstance(
+            data.get("cases"),
+            dict,
+        ):
+            data["cases"] = {}
+
+        data["version"] = 2
+
+        return data
+
+    except Exception:
+        logger.log(
+            "Ban record store could not be loaded.",
+            mtype="sys",
+        )
+        return _new_store()
+
+
+def _save_store(
+    store: dict[str, Any],
+) -> None:
+    temp = RECORD_PATH.with_suffix(
+        ".tmp"
+    )
+
+    with temp.open(
+        "w",
+        encoding="utf-8",
+    ) as f:
+        json.dump(
+            store,
+            f,
+            indent=4,
+            ensure_ascii=False,
+        )
+        f.write("\n")
+
+    temp.replace(
+        RECORD_PATH
+    )
+
+
+def _case_active(
+    case: dict[str, Any],
+) -> bool:
+    if case.get(
+        "revoked_at"
+    ) is not None:
+        return False
+
+    try:
+        return (
+            float(
+                case.get(
+                    "expires_at",
+                    0,
+                )
+            )
+            > _now()
+        )
+    except Exception:
+        return False
+
+
+def _active_cases() -> list[dict[str, Any]]:
+    store = _load_store()
+
+    cases = [
+        case
+        for case in store.get(
+            "cases",
+            {},
+        ).values()
+        if isinstance(
+            case,
+            dict,
+        )
+        and _case_active(case)
+    ]
+
+    cases.sort(
+        key=lambda item: float(
+            item.get(
+                "created_at",
+                0,
+            )
+        ),
+        reverse=True,
+    )
+
+    return cases
+
+
+def _matching_cases(
+    pbid: str | None = None,
+    ip: str | None = None,
+    device: str | None = None,
+) -> list[dict[str, Any]]:
+    result = []
+
+    for case in _active_cases():
+        identities = case.get(
+            "identities",
+            {},
+        )
+
+        if (
+            pbid
+            and pbid
+            in identities.get(
+                "accounts",
+                [],
+            )
+        ):
+            result.append(case)
+            continue
+
+        if (
+            ip
+            and ip
+            in identities.get(
+                "ips",
+                [],
+            )
+        ):
+            result.append(case)
+            continue
+
+        if (
+            device
+            and device
+            in identities.get(
+                "devices",
+                [],
+            )
+        ):
+            result.append(case)
+            continue
+
+    return result
+
+
+
+def is_identity_banned(
+    ip: str | None,
+    device_id: str | None,
+    pbid: str | None,
+) -> bool:
+    """Single authoritative ban check for API9 join enforcement."""
+
+    try:
+        # V2 persistent cases are authoritative first.
+        if _matching_cases(
+            pbid=pbid,
+            ip=ip,
+            device=device_id,
+        ):
+            return True
+
+        # Legacy blacklist compatibility.
+        data = pdata.get_blacklist()
+
+        if not isinstance(data, dict):
+            return False
+
+        ban = data.get("ban", {})
+        if not isinstance(ban, dict):
+            return False
+
+        def legacy_entry_active(value: Any) -> bool:
+            if isinstance(value, dict):
+                # V2-linked legacy entry.
+                case_id = value.get("case_id")
+                if case_id:
+                    store = _load_store()
+                    case = (
+                        store.get("cases", {})
+                        .get(case_id)
+                    )
+
+                    if not isinstance(case, dict):
+                        return False
+
+                    return _case_active(case)
+
+                # Genuine old V1 entry.
+                till = value.get("till")
+
+                if not till:
+                    return True
+
+                try:
+                    expiry = (
+                        datetime.strptime(
+                            str(till),
+                            "%Y-%m-%d %H:%M:%S",
+                        )
+                        .replace(
+                            tzinfo=DISPLAY_TZ
+                        )
+                        .timestamp()
+                    )
+                    return expiry > _now()
+                except Exception:
+                    return True
+
+            # Old list-style blacklist.
+            return True
+
+        ids = ban.get("ids", {})
+        ips = ban.get("ips", {})
+        devices = ban.get("deviceids", {})
+
+        if isinstance(ids, dict):
+            if (
+                pbid
+                and pbid in ids
+                and legacy_entry_active(ids[pbid])
+            ):
+                return True
+        elif isinstance(ids, (list, tuple, set)):
+            if pbid and pbid in ids:
+                return True
+
+        if isinstance(ips, dict):
+            if (
+                ip
+                and ip in ips
+                and legacy_entry_active(ips[ip])
+            ):
+                return True
+        elif isinstance(ips, (list, tuple, set)):
+            if ip and ip in ips:
+                return True
+
+        if isinstance(devices, dict):
+            if (
+                device_id
+                and device_id in devices
+                and legacy_entry_active(devices[device_id])
+            ):
+                return True
+        elif isinstance(devices, (list, tuple, set)):
+            if device_id and device_id in devices:
+                return True
+
+    except Exception:
+        logger.log(
+            "Ban identity check failed.",
+            mtype="sys",
+        )
+
+    return False
+
+
+def _legacy_rule(
+    bucket: str,
+    key: str,
+    expires_at: float,
+    reason: str,
+    case_id: str,
+) -> None:
+    if not key:
+        return
+
+    data = pdata.get_blacklist()
+
+    ban = data.setdefault(
+        "ban",
+        {},
+    )
+
+    values = ban.setdefault(
+        bucket,
+        {},
+    )
+
+    if isinstance(
+        values,
+        dict,
+    ):
+        values[key] = {
+            "till": (
+                datetime.fromtimestamp(
+                    expires_at,
+                    timezone.utc,
+                )
+                .astimezone(
+                    DISPLAY_TZ
+                )
+                .strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
+            ),
+            "reason": reason,
+            "case_id": case_id,
+        }
+
+    elif isinstance(
+        values,
+        list,
+    ):
+        if key not in values:
+            values.append(key)
+
+
+def _remove_case_legacy_rules(
+    case_id: str,
+) -> None:
+    data = pdata.get_blacklist()
+
+    ban = (
+        data.get(
+            "ban",
+            {},
+        )
+        if isinstance(
+            data,
+            dict,
+        )
+        else {}
+    )
+
+    if not isinstance(
+        ban,
+        dict,
+    ):
+        return
+
+    for bucket in (
+        "ids",
+        "ips",
+        "deviceids",
+    ):
+        values = ban.get(
+            bucket,
+            {},
+        )
+
+        if not isinstance(
+            values,
+            dict,
+        ):
+            continue
+
+        for key in list(
+            values.keys()
+        ):
+            entry = values.get(
+                key
+            )
+
+            if (
+                isinstance(
+                    entry,
+                    dict,
+                )
+                and entry.get(
+                    "case_id"
+                )
+                == case_id
+            ):
+                values.pop(
+                    key,
+                    None,
+                )
+
+    pdata.update_blacklist()
+
+
+def _disconnect_accounts(
+    accounts: set[str],
+) -> None:
+    if not accounts:
+        return
+
+    def disconnect() -> None:
+        try:
+            roster = bs.get_game_roster()
+        except Exception:
+            return
+
+        for entry in roster:
+            if not isinstance(
+                entry,
+                dict,
+            ):
+                continue
+
+            if str(
+                entry.get(
+                    "account_id"
+                )
+            ) not in accounts:
+                continue
+
+            client_id = entry.get(
+                "client_id"
+            )
+
+            if not isinstance(
+                client_id,
+                int,
+            ):
+                continue
+
+            if client_id < 0:
+                continue
+
+            try:
+                _bascenev1.disconnect_client(
+                    client_id
+                )
+            except Exception:
+                logger.log(
+                    f"Failed to disconnect "
+                    f"ban-affected client {client_id}.",
+                    mtype="sys",
+                )
+
+    try:
+        _babase.pushcall(
+            babase.Call(
+                disconnect
+            ),
+            from_other_thread=True,
+        )
+    except Exception:
+        logger.log(
+            "Failed to queue ban disconnect.",
+            mtype="sys",
+        )
+
+
+def _update_profiles(
+    affected: dict[str, list[str]],
+    expires_at: float,
+    reason: str,
+    case_id: str,
+) -> list[dict[str, Any]]:
+    profiles = _profiles()
+
+    result = []
+
+    for pbid, matched_by in affected.items():
+        profile = profiles.get(
+            pbid
+        )
+
+        if not isinstance(
+            profile,
+            dict,
+        ):
+            continue
+
+        preexisting = bool(
+            profile.get(
+                "isBan",
+                False,
+            )
+        )
+
+        profile["isBan"] = True
+
+        _legacy_rule(
+            "ids",
+            pbid,
+            expires_at,
+            (
+                reason
+                if "account"
+                in matched_by
+                else (
+                    "linked via "
+                    + ", ".join(
+                        matched_by
+                    )
+                    + ": "
+                    + reason
+                )
+            ),
+            case_id,
+        )
+
+        result.append(
+            {
+                "pbid": pbid,
+                "name": str(
+                    profile.get(
+                        "name",
+                        "Unknown",
+                    )
+                ),
+                "matched_by": list(
+                    matched_by
+                ),
+                "preexisting_ban": preexisting,
+            }
+        )
+
+    if affected:
+        pdata.commit_profiles(
+            profiles
+        )
+
+    return result
+
+
+def _new_case(
+    source_type: str,
+    source: str,
+    source_name: str,
+    reason: str,
+    days: int,
+    identities: dict[str, list[str]],
+    affected: dict[str, list[str]],
+    ctx: commands.Context,
+) -> dict[str, Any]:
+    created = _now()
+    expires = (
+        created
+        + days * 86400
+    )
+
+    case_id = (
+        "BAN-"
+        + datetime.now(
+            timezone.utc
+        ).strftime(
+            "%Y%m%d"
+        )
+        + "-"
+        + uuid.uuid4().hex[:8].upper()
+    )
+
+    linked = _update_profiles(
+        affected,
+        expires,
+        reason,
+        case_id,
+    )
+
+    for ip in identities.get(
+        "ips",
+        [],
+    ):
+        _legacy_rule(
+            "ips",
+            ip,
+            expires,
+            f"{reason}",
+            case_id,
+        )
+
+    for device in identities.get(
+        "devices",
+        [],
+    ):
+        _legacy_rule(
+            "deviceids",
+            device,
+            expires,
+            f"{reason}",
+            case_id,
+        )
+
+    for account in identities.get(
+        "accounts",
+        [],
+    ):
+        _legacy_rule(
+            "ids",
+            account,
+            expires,
+            f"{reason}",
+            case_id,
+        )
+
+    pdata.update_blacklist()
+
+    case = {
+        "case_id": case_id,
+        "source_type": source_type,
+        "source": source,
+        "source_name": source_name,
+        "reason": reason,
+        "created_at": created,
+        "expires_at": expires,
+        "created_by": {
+            "id": str(
+                ctx.author.id
+            ),
+            "name": str(
+                ctx.author
+            ),
+        },
+        "identities": identities,
+        "linked_accounts": linked,
+    }
+
+    store = _load_store()
+
+    store.setdefault(
+        "cases",
+        {},
+    )[case_id] = case
+
+    _save_store(
+        store
+    )
+
+    return case
+
+
+def _kind(
+    case: dict[str, Any],
+) -> str:
+    source_type = str(
+        case.get(
+            "source_type",
+            "account",
+        )
+    )
+
+    if source_type == "account":
+        return "Account + IP/device"
+
+    if source_type == "ip":
+        return "IP"
+
+    if source_type == "device":
+        return "Device"
+
+    return source_type.title()
+
+
+def _recompute_case_profiles(
+    case: dict[str, Any],
+) -> None:
+    profiles = _profiles()
+
+    changed = False
+
+    for entry in case.get(
+        "linked_accounts",
+        [],
+    ):
+        if not isinstance(
+            entry,
+            dict,
+        ):
+            continue
+
+        if entry.get(
+            "preexisting_ban"
+        ):
+            continue
+
+        pbid = str(
+            entry.get(
+                "pbid",
+                "",
+            )
+        )
+
+        if not pbid:
+            continue
+
+        if pbid not in profiles:
+            continue
+
+        if _matching_cases(
+            pbid=pbid
+        ):
+            profiles[pbid][
+                "isBan"
+            ] = True
+        else:
+            profiles[pbid][
+                "isBan"
+            ] = False
+
+        changed = True
+
+    if changed:
+        pdata.commit_profiles(
+            profiles
+        )
+
+
+def _revoke_case(
+    case_id: str,
+) -> bool:
+    store = _load_store()
+
+    case = (
+        store
+        .get("cases", {})
+        .get(case_id)
+    )
+
+    if not isinstance(
+        case,
+        dict,
+    ):
+        return False
+
+    if not _case_active(
+        case
+    ):
+        return False
+
+    case["revoked_at"] = _now()
+
+    _remove_case_legacy_rules(
+        case_id
+    )
+
+    _recompute_case_profiles(
+        case
+    )
+
+    _save_store(
+        store
+    )
+
+    return True
+
+
+def _collect_ban_identity_closure(
+    pbid: str,
+) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+    """Collect the full known PBID/IP/device identity graph."""
+
+    profiles = _profiles()
+
+    affected: dict[str, list[str]] = {
+        pbid: ["account"],
+    }
+
+    ips: set[str] = set()
+    devices: set[str] = set()
+
+    # Seed the graph with the target account.
+    target = profiles.get(pbid)
+
+    if isinstance(target, dict):
+        target_ip = target.get("lastIP")
+        target_device = target.get("deviceUUID")
+
+        if isinstance(target_ip, str) and target_ip:
+            ips.add(target_ip)
+
+        if isinstance(target_device, str) and target_device:
+            devices.add(target_device)
+
+    # Expand until no new account/IP/device identity is discovered.
+    changed = True
+
+    while changed:
+        changed = False
+
+        for account_id, profile in profiles.items():
+            if not isinstance(profile, dict):
+                continue
+
+            profile_ip = profile.get("lastIP")
+            profile_device = profile.get("deviceUUID")
+
+            matched_by: list[str] = list(
+                affected.get(account_id, [])
+            )
+
+            if (
+                isinstance(profile_ip, str)
+                and profile_ip
+                and profile_ip in ips
+                and "IP" not in matched_by
+            ):
+                matched_by.append("IP")
+
+            if (
+                isinstance(profile_device, str)
+                and profile_device
+                and profile_device in devices
+                and "device" not in matched_by
+            ):
+                matched_by.append("device")
+
+            if account_id not in affected and matched_by:
+                affected[account_id] = matched_by
+                changed = True
+
+            elif account_id in affected and matched_by != affected[account_id]:
+                affected[account_id] = matched_by
+                changed = True
+
+            # Every discovered account contributes its own identities.
+            if (
+                isinstance(profile_ip, str)
+                and profile_ip
+                and profile_ip not in ips
+            ):
+                if account_id in affected:
+                    ips.add(profile_ip)
+                    changed = True
+
+            if (
+                isinstance(profile_device, str)
+                and profile_device
+                and profile_device not in devices
+            ):
+                if account_id in affected:
+                    devices.add(profile_device)
+                    changed = True
+
+    identities = {
+        "accounts": sorted(affected.keys()),
+        "ips": sorted(ips),
+        "devices": sorted(devices),
+    }
+
+    return identities, affected
+
+
+async def ban_command(
+    ctx: commands.Context,
+    pbid: str | None = None,
+    days: str | None = None,
+    *,
+    reason: str | None = None,
+) -> None:
+    if not _staff(ctx):
+        await ctx.send(
+            _message(
+                "no_permission"
+            )
+        )
+        return
+
+    if not pbid or not _valid_pbid(pbid):
+        await ctx.send(
+            _message(
+                "invalid_pbid"
+            )
+        )
+        return
+
+    try:
+        duration = int(days or "")
+    except ValueError:
+        await ctx.send(
+            _message(
+                "invalid_duration"
+            )
+        )
+        return
+
+    if duration < MIN_DURATION:
+        await ctx.send(
+            _message(
+                "invalid_duration"
+            )
+        )
+        return
+
+    reason_text = str(reason or "").strip()
+
+    if not reason_text:
+        await ctx.send(
+            _message(
+                "missing_reason"
+            )
+        )
+        return
+
+    if _matching_cases(pbid=pbid):
+        await ctx.send(
+            _message(
+                "already_banned"
+            )
+        )
+        return
+
+    identities, affected = _collect_ban_identity_closure(
+        pbid
+    )
+
+    case = _new_case(
+        "account",
+        pbid,
+        _name(pbid),
+        reason_text,
+        duration,
+        identities,
+        affected,
+        ctx,
+    )
+
+    _disconnect_accounts(
+        set(
+            affected.keys()
+        )
+    )
+
+    await ctx.send(
+        _message(
+            "ban_success",
+            case_id=case["case_id"],
+            target=pbid,
+            count=len(case["linked_accounts"]),
+            expires=_format_time(
+                case["expires_at"]
+            ),
+            reason=reason_text,
+        )
+    )
+
+
+
+async def unban_command(
+    ctx: commands.Context,
+    pbid: str | None = None,
+) -> None:
+    if not _staff(ctx):
+        await ctx.send(
+            _message(
+                "no_permission"
+            )
+        )
+        return
+
+    if not pbid or not _valid_pbid(pbid):
+        await ctx.send(
+            _message(
+                "invalid_pbid"
+            )
+        )
+        return
+
+    pbid = str(pbid).strip()
+
+    store = _load_store()
+
+    active_cases = []
+
+    for case_id, case in store.get(
+        "cases",
+        {},
+    ).items():
+        if not isinstance(case, dict):
+            continue
+
+        if not _case_active(case):
+            continue
+
+        identities = case.get(
+            "identities",
+            {},
+        )
+
+        if (
+            isinstance(identities, dict)
+            and pbid in identities.get(
+                "accounts",
+                [],
+            )
+        ):
+            active_cases.append(
+                (case_id, case)
+            )
+
+    affected_accounts = {pbid}
+
+    for _, case in active_cases:
+        for entry in case.get(
+            "linked_accounts",
+            [],
+        ):
+            if isinstance(entry, dict):
+                account = str(
+                    entry.get(
+                        "pbid",
+                        "",
+                    )
+                )
+                if account:
+                    affected_accounts.add(account)
+
+    revoked = 0
+
+    for case_id, _ in active_cases:
+        if _revoke_case(case_id):
+            revoked += 1
+
+    # Force-clear persisted profile state.
+    profiles = _profiles()
+
+    for account in affected_accounts:
+        profile = profiles.get(account)
+
+        if not isinstance(profile, dict):
+            continue
+
+        profile["isBan"] = bool(
+            _matching_cases(
+                pbid=account
+            )
+        )
+
+    # Keep the live in-memory client state synchronized too.
+    try:
+        from tools import serverdata
+
+        for account in affected_accounts:
+            client_profile = serverdata.clients.get(account)
+
+            if isinstance(client_profile, dict):
+                client_profile["isBan"] = bool(
+                    _matching_cases(
+                        pbid=account
+                    )
+                )
+    except Exception:
+        pass
+
+    # Remove any stale old-style account rule for this PBID.
+    try:
+        data = pdata.get_blacklist()
+        ban = (
+            data.get("ban", {})
+            if isinstance(data, dict)
+            else {}
+        )
+
+        ids = (
+            ban.get("ids", {})
+            if isinstance(ban, dict)
+            else {}
+        )
+
+        if isinstance(ids, dict):
+            ids.pop(
+                pbid,
+                None,
+            )
+
+        pdata.update_blacklist()
+    except Exception:
+        pass
+
+    # pdata.commit_profiles() is not reliable in this legacy tree,
+    # so persist profiles.json directly.
+    profiles_path = (
+        ROOT_MODS / "playersdata" / "profiles.json"
+    )
+
+    profiles_path.write_text(
+        json.dumps(
+            profiles,
+            indent=4,
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    try:
+        pdata.CacheData.profiles = profiles
+    except Exception:
+        pass
+
+    removed = bool(
+        revoked
+    )
+
+    if removed:
+        await ctx.send(
+            _message(
+                "unban_success",
+                target=pbid,
+            )
+        )
+        return
+
+    await ctx.send(
+        _message(
+            "unban_none",
+            target=pbid,
+        )
+    )
+
+
+async def _unban_identity(
+    ctx: commands.Context,
+    target: str,
+    source_type: str,
+) -> None:
+    if not _staff(ctx):
+        await ctx.send(
+            _message(
+                "no_permission"
+            )
+        )
+        return
+
+    if source_type == "ip":
+        target = (
+            _normalize_ip(
+                target
+            )
+            or ""
+        )
+
+        if not target:
+            await ctx.send(
+                _message(
+                    "invalid_ip"
+                )
+            )
+            return
+
+    else:
+        target = (
+            _normalize_device(
+                target
+            )
+            or ""
+        )
+
+        if not target:
+            await ctx.send(
+                _message(
+                    "invalid_device"
+                )
+            )
+            return
+
+    cases = _matching_cases(
+        ip=(
+            target
+            if source_type == "ip"
+            else None
+        ),
+        device=(
+            target
+            if source_type == "device"
+            else None
+        ),
+    )
+
+    changed = 0
+
+    for case in cases:
+        if case.get(
+            "source_type"
+        ) != source_type:
+            continue
+
+        if _revoke_case(
+            str(
+                case.get(
+                    "case_id"
+                )
+            )
+        ):
+            changed += 1
+
+    # Compatibility path for old identity-only entries.
+    if changed == 0:
+        try:
+            data = pdata.get_blacklist()
+            ban = data.get(
+                "ban",
+                {},
+            )
+
+            bucket = (
+                "ips"
+                if source_type == "ip"
+                else "deviceids"
+            )
+
+            values = ban.get(
+                bucket,
+                {},
+            )
+
+            if isinstance(
+                values,
+                dict,
+            ) and target in values:
+                values.pop(
+                    target,
+                    None,
+                )
+                pdata.update_blacklist()
+                changed = 1
+
+            elif isinstance(
+                values,
+                list,
+            ) and target in values:
+                values.remove(
+                    target
+                )
+                pdata.update_blacklist()
+                changed = 1
+
+        except Exception:
+            pass
+
+    remaining = len(
+        _matching_cases(
+            ip=(
+                target
+                if source_type == "ip"
+                else None
+            ),
+            device=(
+                target
+                if source_type == "device"
+                else None
+            ),
+        )
+    )
+
+    if not changed:
+        await ctx.send(
+            _message(
+                "not_banned"
+            )
+        )
+        return
+
+    await ctx.send(
+        _message(
+            "unban_identity_success",
+            kind=(
+                "IP"
+                if source_type == "ip"
+                else "Device"
+            ),
+            target=target,
+            remaining=remaining,
+        )
+    )
+
+
+async def bancheck_command(
+    ctx: commands.Context,
+    pbid: str | None = None,
+) -> None:
+    if not _staff(ctx):
+        await ctx.send(_message("no_permission"))
+        return
+
+    if not pbid or not _valid_pbid(pbid):
+        await ctx.send(_message("invalid_pbid"))
+        return
+
+    records = _matching_cases(pbid=pbid)
+
+    if not records:
+        await ctx.send(
+            _message(
+                "bancheck_clear",
+                pbid=pbid,
+            ).replace("\\n", "\n")
+        )
+        return
+
+    lines = []
+
+    for record in records[:MAX_LIST]:
+        lines.append(
+            _message(
+                "bancheck_entry",
+                reason=str(
+                    record.get("reason", "Unknown")
+                ).replace("`", ""),
+                expires=_format_time(
+                    record.get("expires_at")
+                ),
+            )
+        )
+
+    content = (
+        _message(
+            "bancheck_banned",
+            pbid=pbid,
+            count=len(records),
+        )
+        + "\n"
+        + "\n".join(lines)
+    )
+
+    await ctx.send(content.replace("\\n", "\n"))
+
+
+async def banlist_command(
+    ctx: commands.Context,
+) -> None:
+    if not _staff(ctx):
+        await ctx.send(_message("no_permission"))
+        return
+
+    records = _active_cases()
+
+    if not records:
+        await ctx.send(
+            _message("banlist_empty").replace("\\n", "\n")
+        )
+        return
+
+    lines = []
+
+    for record in records[:MAX_LIST]:
+        identities = record.get("identities", {})
+
+        lines.append(
+            _message(
+                "banlist_entry",
+                name=str(
+                    record.get("source_name", "Unknown")
+                ).replace("`", ""),
+                pbid=str(
+                    record.get("source", "unknown")
+                ),
+                reason=str(
+                    record.get("reason", "Unknown")
+                ).replace("`", ""),
+                created=_format_time(
+                    record.get("created_at")
+                ),
+                expires=_format_time(
+                    record.get("expires_at")
+                ),
+                accounts=len(
+                    identities.get("accounts", [])
+                ),
+                ips=len(
+                    identities.get("ips", [])
+                ),
+                devices=len(
+                    identities.get("devices", [])
+                ),
+            )
+        )
+
+    content = (
+        _message(
+            "banlist_header",
+            count=len(records),
+        )
+        + "\n"
+        + "\n".join(lines)
+    )
+
+    await ctx.send(content.replace("\\n", "\n"))
+
+
+async def bandetails_command(
+    ctx: commands.Context,
+    pbid: str | None = None,
+) -> None:
+    if not _staff(ctx):
+        await ctx.send(_message("no_permission"))
+        return
+
+    if not pbid or not _valid_pbid(pbid):
+        await ctx.send(_message("invalid_pbid"))
+        return
+
+    records = _matching_cases(pbid=pbid)
+
+    if not records:
+        await ctx.send(
+            _message("not_banned").replace("\\n", "\n")
+        )
+        return
+
+    lines = []
+
+    for record in records[:MAX_LIST]:
+        identities = record.get("identities", {})
+
+        lines.append(
+            _message(
+                "bandetails_header",
+                pbid=pbid,
+                name=str(
+                    record.get("source_name", "Unknown")
+                ).replace("`", ""),
+                reason=str(
+                    record.get("reason", "Unknown")
+                ).replace("`", ""),
+                created=_format_time(
+                    record.get("created_at")
+                ),
+                expires=_format_time(
+                    record.get("expires_at")
+                ),
+                accounts=len(
+                    identities.get("accounts", [])
+                ),
+                ips=len(
+                    identities.get("ips", [])
+                ),
+                devices=len(
+                    identities.get("devices", [])
+                ),
+            )
+        )
+
+        account_lines = []
+
+        for entry in record.get(
+            "linked_accounts",
+            [],
+        )[:MAX_DETAILS]:
+            if not isinstance(entry, dict):
+                continue
+
+            account_lines.append(
+                _message(
+                    "bandetails_account",
+                    pbid=entry.get(
+                        "pbid",
+                        "unknown",
+                    ),
+                    name=str(
+                        entry.get(
+                            "name",
+                            "Unknown",
+                        )
+                    ).replace("`", ""),
+                    matched_by=", ".join(
+                        entry.get(
+                            "matched_by",
+                            [],
+                        )
+                    ) or "account",
+                )
+            )
+
+        if account_lines:
+            lines.append("\n".join(account_lines))
+
+    content = "\n".join(lines)
+
+    await ctx.send(content.replace("\\n", "\n"))
+
+
+async def banrelated_command(
+    ctx: commands.Context,
+    pbid: str | None = None,
+) -> None:
+    if not _staff(ctx):
+        await ctx.send(
+            _message(
+                "no_permission"
+            )
+        )
+        return
+
+    if not pbid or not _valid_pbid(
+        pbid
+    ):
+        await ctx.send(
+            _message(
+                "invalid_pbid"
+            )
+        )
+        return
+
+    ip, device = _identity(
+        pbid
+    )
+
+    matches = _related_accounts(
+        ip=ip or None,
+        device=device or None,
+    )
+
+    matches.pop(
+        pbid,
+        None,
+    )
+
+    if not matches:
+        await ctx.send(
+            _message(
+                "related_none"
+            )
+        )
+        return
+
+    lines = []
+
+    for other, matched_by in list(
+        matches.items()
+    )[
+        :MAX_DETAILS
+    ]:
+        lines.append(
+            _message(
+                "related_entry",
+                other_pbid=other,
+                name=_name(
+                    other
+                ),
+                matched_by=" + ".join(
+                    matched_by
+                ),
+            )
+        )
+
+    await ctx.send(
+        _message(
+            "related_header",
+            pbid=pbid,
+            count=len(matches),
+        )
+        + "\n"
+        + "\n".join(
+            lines
+        )
+    )
+
+
+def _help_text(
+    name: str,
+) -> str:
+    try:
+        root = json.loads(
+            SETTING_PATH.read_text(
+                encoding="utf-8"
+            )
+        )
+
+        return str(
+            root
+            .get("discordbot", {})
+            .get("commandConfig", {})
+            .get("categories", {})
+            .get("Bans", {})
+            .get("commands", {})
+            .get(name, {})
+            .get(
+                "description",
+                name,
+            )
+        )
+
+    except Exception:
+        return name
+
+
+def register(
+    bot: commands.Bot,
+) -> None:
+    callbacks = {
+        "ban": ban_command,
+        "unban": unban_command,
+        "bancheck": bancheck_command,
+        "banlist": banlist_command,
+        "bandetails": bandetails_command,
+        "banrelated": banrelated_command,
+        "mute": discord_mute_commands.mute_command,
+        "unmute": discord_mute_commands.unmute_command,
+        "mutecheck": discord_mute_commands.mutecheck_command,
+        "mutelist": discord_mute_commands.mutelist_command,
+        "mutedetails": discord_mute_commands.mutedetails_command,
+    }
+
+    for name, callback in callbacks.items():
+        existing = bot.get_command(
+            name
+        )
+
+        if existing is not None:
+            bot.remove_command(
+                existing.name
+            )
+
+        bot.add_command(
+            commands.Command(
+                callback,
+                name=name,
+                help=_help_text(
+                    name
+                ),
+            )
+        )

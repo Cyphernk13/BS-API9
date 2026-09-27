@@ -23,9 +23,45 @@ class textonmap:
         if not data.get("enable", True):
             return
 
+        left = data.get(
+            "bottom left watermark",
+            "",
+        )
+
+        top = data.get(
+            "top watermark",
+            "",
+        )
+
+        next_map = ""
+
+        try:
+            session = bs.get_foreground_host_session()
+
+            if session is not None:
+                description = (
+                    session.get_next_game_description()
+                )
+
+                if description is not None:
+                    next_map = description.evaluate()
+
+        except Exception:
+            pass
+
+        try:
+            ip = getattr(_babase, "our_ip", "")
+            port = getattr(_babase, "our_port", "")
+
+            top = (
+                top.replace("@IP", str(ip))
+                .replace("@PORT", str(port))
+            )
+
+        except Exception:
+            pass
+
         self.index = 0
-        self._leaderboard_drawn = False
-        self._leaderboard_retry_scheduled = False
 
         self.highlights = (
             data.get(
@@ -37,51 +73,75 @@ class textonmap:
             )
         )
 
-        # ----------------------------------------------------
-        # IMPORTANT:
-        # Use normal Call here, not WeakCall.
-        #
-        # The legacy implementation keeps its textonmap object
-        # alive through the repeating callback.
-        # ----------------------------------------------------
+        # Empty in the legacy configuration, so nothing is shown.
+        if left:
+            self.left_watermark(left)
 
-        if self.highlights and data.get(
-            "center highlights",
+        if top:
+            self.top_message(top)
+
+        self.nextGame(next_map)
+        self.restart_msg()
+
+        try:
+            season_days = getattr(
+                _babase,
+                "season_ends_in_days",
+                None,
+            )
+
+            if (
+                season_days is not None
+                and season_days < 9
+            ):
+                self.season_reset(season_days)
+
+        except Exception:
+            pass
+
+        if setti.get(
+            "leaderboard",
             {},
         ).get(
             "enable",
-            True,
+            False,
+        ):
+            self.leaderBoard()
+
+        center = data.get(
+            "center highlights",
+            {},
+        )
+
+        if (
+            center.get("enable", True)
+            and self.highlights
         ):
             self.highlights_()
 
-            self._highlight_timer = bs.timer(
+            self._highlight_timer = babase.AppTimer(
                 8.0,
-                babase.Call(self.highlights_),
+                babase.WeakCall(self.highlights_),
                 repeat=True,
             )
 
-        top_cfg = setti.get(
+        top_map = setti.get(
             "TopMapText",
             {},
         )
 
-        if top_cfg.get(
-            "enable",
-            False,
-        ) and top_cfg.get(
-            "msg",
-            [],
+        if (
+            top_map.get("enable", False)
+            and top_map.get("msg")
         ):
             self.show_top_text()
 
-            self._top_timer = bs.timer(
+            self._top_map_timer = babase.AppTimer(
                 5.0,
-                babase.Call(self.show_top_text),
+                babase.WeakCall(self.show_top_text),
                 repeat=True,
             )
 
-        # The legacy version supports date/time but its
-        # configuration has it disabled.
         time_cfg = setti.get(
             "timetext",
             {},
@@ -93,41 +153,15 @@ class textonmap:
         ):
             self.show_date_time()
 
-            self._time_timer = bs.timer(
+            self._time_timer = babase.AppTimer(
                 0.1,
-                babase.Call(self.show_date_time),
+                babase.WeakCall(self.show_date_time),
                 repeat=True,
             )
 
-        # Legacy leaderboard.
-        if setti.get(
-            "leaderboard",
-            {},
-        ).get(
-            "enable",
-            False,
-        ):
-            self.leaderBoard()
-
-        # Legacy restart/season UI.
-        self.restart_msg()
-
-        try:
-            season_days = getattr(
-                _babase,
-                "season_ends_in_days",
-                None,
-            )
-
-            if season_days is not None:
-                self.season_reset(season_days)
-
-        except Exception:
-            pass
-
 
     # ========================================================
-    # CENTER HIGHLIGHTS
+    # EXACT LEGACY CENTER HIGHLIGHTS
     # ========================================================
 
     def highlights_(self):
@@ -172,7 +206,6 @@ class textonmap:
             },
         )
 
-        # Same legacy rainbow animation.
         bs.animate_array(
             node,
             "color",
@@ -212,7 +245,60 @@ class textonmap:
 
 
     # ========================================================
-    # TOP ROTATING TEXT
+    # EXACT LEGACY DATE/TIME
+    # Disabled by legacy settings.
+    # ========================================================
+
+    def show_date_time(self):
+        cfg = setti.get(
+            "timetext",
+            {},
+        )
+
+        timezone = cfg.get(
+            "timezone",
+            "Asia/Kolkata",
+        )
+
+        try:
+            now = datetime.now(
+                ZoneInfo(timezone)
+            )
+        except Exception:
+            now = datetime.now()
+
+        node = bs.newnode(
+            "text",
+            attrs={
+                "text": (
+                    "Date : "
+                    + now.strftime(
+                        "%A, %B %d, %Y"
+                    )
+                    + "\nTime : "
+                    + now.strftime(
+                        "%I:%M:%S %p"
+                    )
+                ),
+                "scale": 0.85,
+                "flatness": 1.0,
+                "maxwidth": 0,
+                "h_attach": "center",
+                "h_align": "center",
+                "v_attach": "top",
+                "position": (400, -60),
+                "color": (1.0, 1.0, 1.0),
+            },
+        )
+
+        bs.timer(
+            0.1,
+            node.delete,
+        )
+
+
+    # ========================================================
+    # EXACT LEGACY ROTATING TOP TEXT
     # ========================================================
 
     def show_top_text(self):
@@ -272,68 +358,17 @@ class textonmap:
 
 
     # ========================================================
-    # OPTIONAL DATE/TIME
-    # ========================================================
-
-    def show_date_time(self):
-        cfg = setti.get(
-            "timetext",
-            {},
-        )
-
-        tz = cfg.get(
-            "timezone",
-            "Asia/Kolkata",
-        )
-
-        try:
-            now = datetime.now(
-                ZoneInfo(tz)
-            )
-        except Exception:
-            now = datetime.now()
-
-        node = bs.newnode(
-            "text",
-            attrs={
-                "text": (
-                    "Date : "
-                    + now.strftime(
-                        "%A, %B %d, %Y"
-                    )
-                    + "\nTime : "
-                    + now.strftime(
-                        "%I:%M:%S %p"
-                    )
-                ),
-                "scale": 0.85,
-                "flatness": 1.0,
-                "maxwidth": 0,
-                "h_attach": "center",
-                "h_align": "center",
-                "v_attach": "top",
-                "position": (400, -60),
-                "color": (1.0, 1.0, 1.0),
-            },
-        )
-
-        bs.timer(
-            0.1,
-            node.delete,
-        )
-
-
-    # ========================================================
-    # BOTTOM LEFT
+    # LEGACY BOTTOM-LEFT WATERMARK
     #
-    # Disabled because the legacy settings use an empty string.
+    # With the legacy settings this receives an empty string,
+    # so it does not render.
     # ========================================================
 
     def left_watermark(self, text):
         if not text:
             return
 
-        bs.newnode(
+        node = bs.newnode(
             "text",
             attrs={
                 "text": text,
@@ -342,29 +377,42 @@ class textonmap:
                 "v_attach": "bottom",
                 "h_attach": "left",
                 "scale": 0.7,
-                "position": (25, 95),
-                "color": (1.0, 1.0, 1.0),
+                "position": (25, 67),
+                "color": (0.7, 0.7, 0.7),
             },
         )
 
 
     # ========================================================
-    # LEGACY NEXT-MAP METHOD
-    #
-    # The original text assignment is commented out, so the
-    # legacy UI does not show the current Next-map message.
+    # EXACT LEGACY NEXT-MAP TEXT
     # ========================================================
 
     def nextGame(self, text):
-        return
+        bs.newnode(
+            "text",
+            attrs={
+                "text": (
+                    "Next : " + text
+                    if text
+                    else ""
+                ),
+                "flatness": 1.0,
+                "h_align": "right",
+                "v_attach": "bottom",
+                "h_attach": "right",
+                "scale": 0.7,
+                "position": (-25, 16),
+                "color": (0.5, 0.5, 0.5),
+            },
+        )
 
 
     # ========================================================
-    # LEGACY SEASON
+    # EXACT LEGACY SEASON TEXT
     # ========================================================
 
     def season_reset(self, text):
-        bs.newnode(
+        node = bs.newnode(
             "text",
             attrs={
                 "text": (
@@ -376,53 +424,55 @@ class textonmap:
                 "h_align": "right",
                 "v_attach": "bottom",
                 "h_attach": "right",
-                "scale": 0.7,
-                "position": (-25, 5),
-                "color": (1.0, 1.0, 1.0),
+                "scale": 0.5,
+                "position": (-25, 34),
+                "color": (0.6, 0.5, 0.7),
             },
+        )
+
+        bs.timer(
+            0.1,
+            node.delete,
         )
 
 
     # ========================================================
-    # LEGACY RESTART MESSAGE
+    # EXACT LEGACY RESTART MESSAGE
     # ========================================================
 
     def restart_msg(self):
-        if not hasattr(
+        if hasattr(
             _babase,
             "restart_scheduled",
         ):
-            return
+            activity = (
+                _babase.get_foreground_host_activity()
+            )
 
-        activity = (
-            _babase.get_foreground_host_activity()
-        )
-
-        if activity is None:
-            return
-
-        activity.restart_msg = bs.newnode(
-            "text",
-            attrs={
-                "text": (
-                    "Server going to restart "
-                    "after this series."
-                ),
-                "flatness": 1.0,
-                "h_align": "right",
-                "v_attach": "bottom",
-                "h_attach": "right",
-                "scale": 0.3,
-                "position": (-25, 40),
-                "color": (1.0, 0.5, 0.7),
-            },
-        )
+            if activity is not None:
+                activity.restart_msg = bs.newnode(
+                    "text",
+                    attrs={
+                        "text": (
+                            "Server going to restart "
+                            "after this series."
+                        ),
+                        "flatness": 1.0,
+                        "h_align": "right",
+                        "v_attach": "bottom",
+                        "h_attach": "right",
+                        "scale": 0.5,
+                        "position": (-25, 54),
+                        "color": (1.0, 0.5, 0.7),
+                    },
+                )
 
 
     # ========================================================
     # TOP WATERMARK
     #
-    # Empty in the legacy configuration, therefore hidden.
+    # Legacy settings use an empty string, so this produces
+    # NO welcome/IP/port message.
     # ========================================================
 
     def top_message(self, text):
@@ -436,13 +486,9 @@ class textonmap:
                 "flatness": 1.0,
                 "h_align": "center",
                 "v_attach": "top",
-                "scale": 1.2,
+                "scale": 0.7,
                 "position": (0, -70),
-                "color": (
-                    random.random(),
-                    random.random(),
-                    random.random(),
-                ),
+                "color": (1.0, 1.0, 1.0),
             },
         )
 
@@ -451,137 +497,91 @@ class textonmap:
     # EXACT LEGACY LEADERBOARD
     # ========================================================
 
-    def _try_leaderboard(self):
-        """Wait for API 9 stats to populate, then draw once."""
-        if getattr(
-            self,
-            "_leaderboard_drawn",
-            False,
-        ):
-            return
-
-        if getattr(
-            self,
-            "_leaderboard_retry_scheduled",
-            False,
-        ):
-            return
-
+    def leaderBoard(self):
         try:
             names = mystats.top3Name
         except Exception:
-            names = []
-
-        if not names or len(names) < 3:
-            # Stats may be populated a little after textonmap starts.
-            # Schedule one retry; avoid stacking duplicate timers.
-            self._leaderboard_retry_scheduled = True
-
-            def retry():
-                self._leaderboard_retry_scheduled = False
-                self._try_leaderboard()
-
-            bs.timer(
-                2.0,
-                babase.Call(retry),
-            )
             return
 
-        self._leaderboard_drawn = True
-        self._draw_leaderboard(names)
+        if len(names) <= 2:
+            return
 
-    def leaderBoard(self):
-        # Keep the original public method name so existing calls
-        # elsewhere in the server continue to work.
-        self._try_leaderboard()
+        cfg = setti.get(
+            "leaderboard",
+            {},
+        )
 
-    def _draw_leaderboard(self, names):
-        """Exact legacy leaderboard visual layout."""
-
-        # ----------------------------------------------------
-        # Exact legacy bars.
-        # ----------------------------------------------------
-        if setti["leaderboard"]["barsBehindName"]:
+        if cfg.get(
+            "barsBehindName",
+            False,
+        ):
             bars = (
                 (
-                    (-10, -205),
-                    (0.9, 0.9, 0.9),
+                    (0, -80),
+                    (0.7, 0.1, 0.0),
                 ),
                 (
-                    (-10, -135),
-                    (0.9, 0.9, 0.9),
+                    (0, -115),
+                    (0.6, 0.6, 0.6),
                 ),
                 (
-                    (-10, -170),
-                    (0.9, 0.9, 0.9),
+                    (0, -150),
+                    (0.1, 0.3, 0.1),
                 ),
             )
 
-            for position, color in bars:
+            for pos, color in bars:
                 bs.newnode(
                     "image",
                     attrs={
-                        "scale": (300, 33),
-                        "texture": bs.gettexture("bar"),
-                        "position": position,
+                        "scale": (300, 30),
+                        "texture": bs.gettexture(
+                            "uiAtlas2"
+                        ),
+                        "position": pos,
                         "attach": "topRight",
                         "opacity": 0.5,
                         "color": color,
                     },
                 )
 
-        # ----------------------------------------------------
-        # Exact legacy heading.
-        # ----------------------------------------------------
-        bs.newnode(
-            "text",
-            attrs={
-                "text": "🏆LEADERBOARD🏆",
-                "flatness": 1.0,
-                "h_align": "left",
-                "h_attach": "right",
-                "v_attach": "top",
-                "v_align": "center",
-                "position": (-170, -100),
-                "scale": 0.7,
-                "color": (1.0, 0.8, 0.0),
-            },
-        )
-
-        # ----------------------------------------------------
-        # Exact legacy rows.
-        # ----------------------------------------------------
-        rows = (
+        entries = (
             (
-                "🥇 ",
+                "#1 ",
                 names[0][:10],
-                -135,
+                (0.7, 0.4, 0.3),
+                -80,
             ),
             (
-                "🥈 ",
+                "#2 ",
                 names[1][:10],
-                -170,
+                (0.8, 0.8, 0.8),
+                -115,
             ),
             (
-                "🥉 ",
+                "#3 ",
                 names[2][:10],
-                -205,
+                (0.2, 0.6, 0.2),
+                -150,
             ),
         )
 
-        for prefix, name, ypos in rows:
+        for prefix, name, color, ypos in entries:
             bs.newnode(
                 "text",
                 attrs={
-                    "text": prefix + name,
+                    "text": (
+                        prefix
+                        + name
+                        + "..."
+                    ),
                     "flatness": 1.0,
                     "h_align": "left",
                     "h_attach": "right",
                     "v_attach": "top",
                     "v_align": "center",
-                    "position": (-150, ypos),
+                    "position": (-140, ypos),
                     "scale": 0.7,
-                    "color": (1.0, 1.0, 1.0),
+                    "color": color,
                 },
             )
-

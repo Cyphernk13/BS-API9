@@ -18,7 +18,7 @@ from babase._general import Call
 logging.getLogger('asyncio').setLevel(logging.WARNING)
 intents = discord.Intents().all()
 
-client = Bot(command_prefix=lambda *_args: bot_prefix, intents=intents)
+client = Bot(command_prefix=lambda *_args: [], intents=intents)
 # client = discord.Client()
 
 
@@ -166,6 +166,8 @@ async def on_ready():
             id=client.user.id,
         )
     )
+
+    client.command_prefix = bot_prefix
 
     await verify_channel()
 

@@ -1,0 +1,795 @@
+
+"""Cypher Duels Discord command system.
+
+The Discord bot module is passed in explicitly so this module does
+not import discord_bot at module-import time and create a circular
+dependency.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+
+def register(botmod: Any) -> None:
+    """Register the configured command set exactly once."""
+
+    if getattr(
+        botmod,
+        "_phase2a_commands_registered",
+        False,
+    ):
+        return
+
+    if not getattr(
+        botmod,
+        "commandConfig",
+        {},
+    ):
+        return
+
+    cfg = botmod.commandConfig
+
+    if not cfg.get(
+        "enabled",
+        True,
+    ):
+        return
+
+    client = botmod.client
+
+    # Remove discord.py's default help command so our configured
+    # help command owns the name.
+    default_help = client.get_command("help")
+
+    if default_help is not None:
+        client.remove_command("help")
+
+    def command_spec(category: str, key: str):
+        return (
+            cfg.get(
+                "categories",
+                {},
+            )
+            .get(
+                category,
+                {},
+            )
+            .get(
+                key,
+                {},
+            )
+        )
+
+    async def cmd_help(ctx, category: str = ""):
+        text_cfg = cfg.get(
+            "text",
+            {},
+        ).get(
+            "help",
+            {},
+        )
+
+        categories = cfg.get(
+            "categories",
+            {},
+        )
+
+        category_query = (
+            str(category)
+            .strip()
+            .casefold()
+        )
+
+        if category_query:
+
+            matched_category = None
+
+            for category_name in categories:
+                if (
+                    category_name.casefold()
+                    == category_query
+                ):
+                    matched_category = category_name
+                    break
+
+            if matched_category is None:
+                await ctx.send(
+                    text_cfg.get(
+                        "unknown_category",
+                        "Unknown category.",
+                    ).format(
+                        category=category
+                    )
+                )
+                return
+
+            lines = []
+
+            for spec in categories[
+                matched_category
+            ].values():
+
+                if not spec.get(
+                    "enabled",
+                    True,
+                ):
+                    continue
+
+                name = spec.get(
+                    "name",
+                    "",
+                )
+
+                aliases = spec.get(
+                    "aliases",
+                    [],
+                )
+
+                description = spec.get(
+                    "description",
+                    "",
+                )
+
+                if not name:
+                    continue
+
+                alias_text = ""
+
+                if aliases:
+                    alias_text = (
+                        "  "
+                        + ", ".join(
+                            f"`{botmod.bot_prefix}{alias}`"
+                            for alias in aliases
+                        )
+                    )
+
+                lines.append(
+                    f"`{botmod.bot_prefix}{name}`"
+                    + alias_text
+                    + (
+                        f" — {description}"
+                        if description
+                        else ""
+                    )
+                )
+
+            message = (
+                f"**{matched_category}**\n"
+                + "\n".join(lines)
+            )
+
+            await ctx.send(
+                message[:1900]
+            )
+            return
+
+        embed = botmod.discord.Embed(
+            title=text_cfg.get(
+                "title",
+                "⚔️ COMMANDS",
+            ),
+            description=text_cfg.get(
+                "description",
+                "",
+            ).format(
+                prefix=botmod.bot_prefix
+            ),
+            colour=botmod.discord.Colour(
+                botmod._ui_color(
+                    "colors.accent"
+                )
+            ),
+        )
+
+        public_lines = []
+        staff_lines = []
+
+        for category_name, commands in categories.items():
+
+            for spec in commands.values():
+
+                if not spec.get(
+                    "enabled",
+                    True,
+                ):
+                    continue
+
+                name = spec.get(
+                    "name",
+                    "",
+                )
+
+                if not name:
+                    continue
+
+                line = (
+                    f"`{botmod.bot_prefix}{name}` "
+                    f"— "
+                    f"{spec.get('description', '')}"
+                )
+
+                permission = spec.get(
+                    "permission",
+                    "public",
+                )
+
+                if permission == "staff":
+                    staff_lines.append(line)
+                else:
+                    public_lines.append(line)
+
+        if public_lines:
+            embed.add_field(
+                name=text_cfg.get(
+                    "public_header",
+                    "PUBLIC",
+                ),
+                value="\n".join(
+                    public_lines
+                )[:1024],
+                inline=False,
+            )
+
+        if staff_lines:
+            embed.add_field(
+                name=text_cfg.get(
+                    "staff_header",
+                    "STAFF",
+                ),
+                value="\n".join(
+                    staff_lines
+                )[:1024],
+                inline=False,
+            )
+
+        footer = cfg.get(
+            "text",
+            {},
+        ).get(
+            "footer",
+            "",
+        )
+
+        if footer:
+            embed.set_footer(
+                text=footer
+            )
+
+        await ctx.send(
+            embed=embed
+        )
+
+    async def cmd_status(ctx):
+        text_cfg = cfg.get(
+            "text",
+            {},
+        ).get(
+            "status",
+            {},
+        )
+
+        try:
+            current, next_game = (
+                botmod._cmd_current_next()
+            )
+        except AttributeError:
+            playlist = botmod.stats.get(
+                "playlist",
+                {},
+            )
+
+            current = str(
+                playlist.get(
+                    "current",
+                    "",
+                )
+            )
+
+            next_game = str(
+                playlist.get(
+                    "next",
+                    "",
+                )
+            )
+
+        current = current.strip()
+        next_game = next_game.strip()
+
+        def split_game(value):
+            if " @ " in value:
+                mode, game_map = value.split(
+                    " @ ",
+                    1,
+                )
+
+                return (
+                    mode.strip(),
+                    game_map.strip(),
+                )
+
+            return (
+                value,
+                "",
+            )
+
+        current_mode, current_map = (
+            split_game(current)
+        )
+
+        next_mode, next_map = (
+            split_game(next_game)
+        )
+
+        try:
+            roster = botmod._roster()
+        except AttributeError:
+            roster = []
+
+            for account_id, data in (
+                botmod.stats.get(
+                    "roster",
+                    {},
+                ).items()
+            ):
+                roster.append(
+                    {
+                        "account_id": account_id,
+                        "name": data.get(
+                            "name",
+                            "<unknown>",
+                        ),
+                    }
+                )
+
+        embed = botmod.discord.Embed(
+            title=text_cfg.get(
+                "title",
+                "⚔️ STATUS",
+            ),
+            colour=botmod.discord.Colour(
+                botmod._ui_color(
+                    "colors.accent"
+                )
+            ),
+        )
+
+        embed.add_field(
+            name=text_cfg.get(
+                "online",
+                "🟢 ONLINE",
+            ),
+            value="`ONLINE`",
+            inline=True,
+        )
+
+        embed.add_field(
+            name=text_cfg.get(
+                "players",
+                "👥 Players",
+            ),
+            value=(
+                f"`{len(roster)} / "
+                f"{botmod.max_players}`"
+            ),
+            inline=True,
+        )
+
+        embed.add_field(
+            name=text_cfg.get(
+                "game",
+                "🎮 Game",
+            ),
+            value=(
+                "`"
+                + (
+                    current_mode
+                    or text_cfg.get(
+                        "waiting",
+                        "Waiting",
+                    )
+                )
+                + "`"
+            ),
+            inline=True,
+        )
+
+        embed.add_field(
+            name=text_cfg.get(
+                "map",
+                "🗺️ Map",
+            ),
+            value=(
+                "`"
+                + (
+                    current_map
+                    or current_mode
+                    or text_cfg.get(
+                        "waiting",
+                        "Waiting",
+                    )
+                )
+                + "`"
+            ),
+            inline=True,
+        )
+
+        embed.add_field(
+            name=text_cfg.get(
+                "next",
+                "⏭️ Next",
+            ),
+            value=(
+                "`"
+                + (
+                    next_map
+                    or next_mode
+                    or text_cfg.get(
+                        "unavailable",
+                        "N/A",
+                    )
+                )
+                + "`"
+            ),
+            inline=True,
+        )
+
+        address = (
+            botmod.server_connect.get(
+                "host",
+                "",
+            )
+        )
+
+        port = (
+            botmod.server_connect.get(
+                "port",
+                "",
+            )
+        )
+
+        address = (
+            f"{address}:{port}"
+            if address and port
+            else str(address or port)
+        )
+
+        embed.add_field(
+            name=text_cfg.get(
+                "join",
+                "🔗 Server Address",
+            ),
+            value=(
+                "```text\n"
+                + address
+                + "\n```"
+            ),
+            inline=False,
+        )
+
+        footer = cfg.get(
+            "text",
+            {},
+        ).get(
+            "footer",
+            "",
+        )
+
+        if footer:
+            embed.set_footer(
+                text=footer
+            )
+
+        await ctx.send(
+            embed=embed
+        )
+
+    async def cmd_players(ctx):
+        text_cfg = cfg.get(
+            "text",
+            {},
+        ).get(
+            "players",
+            {},
+        )
+
+        try:
+            roster = botmod._roster()
+        except AttributeError:
+            roster = []
+
+            for account_id, data in (
+                botmod.stats.get(
+                    "roster",
+                    {},
+                ).items()
+            ):
+                roster.append(
+                    {
+                        "account_id": account_id,
+                        "name": data.get(
+                            "name",
+                            "<unknown>",
+                        ),
+                    }
+                )
+
+        if not roster:
+            await ctx.send(
+                text_cfg.get(
+                    "empty",
+                    "```text\nNo players connected.\n```",
+                )
+            )
+            return
+
+        lines = []
+
+        for index, player in enumerate(
+            roster,
+            start=1,
+        ):
+            name = str(
+                player.get(
+                    "name",
+                    "<unknown>",
+                )
+            ).replace(
+                "`",
+                "'",
+            )
+
+            lines.append(
+                f"{index}. {name}"
+            )
+
+        await ctx.send(
+            (
+                f"**"
+                + text_cfg.get(
+                    "title",
+                    "👥 PLAYERS ONLINE",
+                )
+                + "**\n"
+                "```text\n"
+                + "\n".join(lines)
+                + "\n```"
+            )
+        )
+
+    async def cmd_join(ctx):
+        text_cfg = cfg.get(
+            "text",
+            {},
+        ).get(
+            "join",
+            {},
+        )
+
+        host = str(
+            botmod.server_connect.get(
+                "host",
+                "",
+            )
+        )
+
+        port = str(
+            botmod.server_connect.get(
+                "port",
+                "",
+            )
+        )
+
+        address = (
+            f"{host}:{port}"
+            if host and port
+            else host or port
+        )
+
+        await ctx.send(
+            (
+                f"**"
+                + text_cfg.get(
+                    "title",
+                    "🔗 QUICK JOIN",
+                )
+                + "**\n"
+                "```text\n"
+                + address
+                + "\n```\n"
+                + text_cfg.get(
+                    "hint",
+                    "",
+                )
+            )
+        )
+
+    async def cmd_panel(ctx):
+        if not _is_staff(
+            botmod,
+            ctx.author,
+            ctx.guild,
+        ):
+            await ctx.send(
+                cfg.get(
+                    "text",
+                    {},
+                ).get(
+                    "panel",
+                    {},
+                ).get(
+                    "permission_denied",
+                    "⛔ Unauthorized.",
+                )
+            )
+            return
+
+        text_cfg = cfg.get(
+            "text",
+            {},
+        ).get(
+            "panel",
+            {},
+        )
+
+        embed = botmod.discord.Embed(
+            title=text_cfg.get(
+                "title",
+                "🛠️ STAFF PANEL",
+            ),
+            description=text_cfg.get(
+                "description",
+                "",
+            ),
+            colour=botmod.discord.Colour(
+                botmod._ui_color(
+                    "colors.accent"
+                )
+            ),
+        )
+
+        footer = cfg.get(
+            "text",
+            {},
+        ).get(
+            "footer",
+            "",
+        )
+
+        if footer:
+            embed.set_footer(
+                text=footer
+            )
+
+        # Reuse the already-tested live status control view.
+        view = botmod.LiveStatusView()
+
+        await ctx.send(
+            embed=embed,
+            view=view,
+        )
+
+    def _make_command(
+        func,
+        category,
+        key,
+    ):
+        spec = command_spec(
+            category,
+            key,
+        )
+
+        if not spec.get(
+            "enabled",
+            True,
+        ):
+            return
+
+        name = str(
+            spec.get(
+                "name",
+                "",
+            )
+        ).strip()
+
+        if not name:
+            return
+
+        aliases = [
+            str(alias).strip()
+            for alias in spec.get(
+                "aliases",
+                [],
+            )
+            if str(alias).strip()
+        ]
+
+        existing = client.get_command(
+            name
+        )
+
+        if existing is not None:
+            client.remove_command(
+                existing.name
+            )
+
+        command = botmod.commands.Command(
+            func,
+            name=name,
+            aliases=aliases,
+            help=spec.get(
+                "description",
+                "",
+            ),
+        )
+
+        client.add_command(
+            command
+        )
+
+    _make_command(
+        cmd_help,
+        "General",
+        "help",
+    )
+
+    _make_command(
+        cmd_status,
+        "General",
+        "status",
+    )
+
+    _make_command(
+        cmd_players,
+        "General",
+        "players",
+    )
+
+    _make_command(
+        cmd_join,
+        "General",
+        "join",
+    )
+
+    _make_command(
+        cmd_panel,
+        "Server Management",
+        "panel",
+    )
+
+    botmod._phase2a_commands_registered = True
+
+    print(
+        "Discord command system: Phase 2A registered"
+    )
+
+
+def _is_staff(
+    botmod,
+    user,
+    guild,
+):
+    try:
+        user_id = int(
+            user.id
+        )
+    except BaseException:
+        return False
+
+    if user_id in getattr(
+        botmod,
+        "allowed_user_ids",
+        set(),
+    ):
+        return True
+
+    if guild is not None:
+        try:
+            return user_id == int(
+                guild.owner_id
+            )
+        except BaseException:
+            pass
+
+    return False

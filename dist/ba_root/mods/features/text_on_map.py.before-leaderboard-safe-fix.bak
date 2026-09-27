@@ -24,8 +24,6 @@ class textonmap:
             return
 
         self.index = 0
-        self._leaderboard_drawn = False
-        self._leaderboard_retry_scheduled = False
 
         self.highlights = (
             data.get(
@@ -451,57 +449,29 @@ class textonmap:
     # EXACT LEGACY LEADERBOARD
     # ========================================================
 
-    def _try_leaderboard(self):
-        """Wait for API 9 stats to populate, then draw once."""
-        if getattr(
-            self,
-            "_leaderboard_drawn",
-            False,
-        ):
-            return
-
-        if getattr(
-            self,
-            "_leaderboard_retry_scheduled",
-            False,
-        ):
-            return
-
+    def leaderBoard(self):
         try:
-            names = mystats.top3Name
-        except Exception:
-            names = []
-
-        if not names or len(names) < 3:
-            # Stats may be populated a little after textonmap starts.
-            # Schedule one retry; avoid stacking duplicate timers.
-            self._leaderboard_retry_scheduled = True
-
-            def retry():
-                self._leaderboard_retry_scheduled = False
-                self._try_leaderboard()
-
-            bs.timer(
-                2.0,
-                babase.Call(retry),
+            names = mystats.top5Name
+        except Exception as exc:
+            print(
+                "[TEXTONMAP LEADERBOARD ERROR]",
+                type(exc).__name__,
+                str(exc),
             )
             return
 
-        self._leaderboard_drawn = True
-        self._draw_leaderboard(names)
+        if len(names) <= 2:
+            return
 
-    def leaderBoard(self):
-        # Keep the original public method name so existing calls
-        # elsewhere in the server continue to work.
-        self._try_leaderboard()
-
-    def _draw_leaderboard(self, names):
-        """Exact legacy leaderboard visual layout."""
-
-        # ----------------------------------------------------
-        # Exact legacy bars.
-        # ----------------------------------------------------
-        if setti["leaderboard"]["barsBehindName"]:
+        if setti.get(
+            "leaderboard",
+            {},
+        ).get(
+            "barsBehindName",
+            False,
+        ):
+            # Exact legacy leaderboard bars.
+            # The original uses the 'bar' texture.
             bars = (
                 (
                     (-10, -205),
@@ -530,9 +500,7 @@ class textonmap:
                     },
                 )
 
-        # ----------------------------------------------------
         # Exact legacy heading.
-        # ----------------------------------------------------
         bs.newnode(
             "text",
             attrs={
@@ -548,10 +516,8 @@ class textonmap:
             },
         )
 
-        # ----------------------------------------------------
-        # Exact legacy rows.
-        # ----------------------------------------------------
-        rows = (
+        # Exact legacy medal rows.
+        entries = (
             (
                 "🥇 ",
                 names[0][:10],
@@ -569,7 +535,7 @@ class textonmap:
             ),
         )
 
-        for prefix, name, ypos in rows:
+        for prefix, name, ypos in entries:
             bs.newnode(
                 "text",
                 attrs={
@@ -584,4 +550,3 @@ class textonmap:
                     "color": (1.0, 1.0, 1.0),
                 },
             )
-
