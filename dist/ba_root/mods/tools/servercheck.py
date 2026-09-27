@@ -194,7 +194,7 @@ def on_player_join_server(pbid, player_data, ip, device_id):
                         "kick-vote-disabled"] and current_time < datetime.strptime(
                         blacklist["kick-vote-disabled"][pbid]["till"],
                         "%Y-%m-%d %H:%M:%S"):
-                    _babase.disable_kickvote(pbid)
+                    _bascenev1.disable_kickvote(pbid)
 
             serverdata.clients[pbid]["lastIP"] = ip
 

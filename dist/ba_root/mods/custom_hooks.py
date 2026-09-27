@@ -743,14 +743,9 @@ def on_player_request(func) -> bool:
                 "V2 ban check in on_player_request failed."
             )
 
-        # Keep the original verification/device-limit behavior.
-        if not (
-            pbid in serverdata.clients
-            and serverdata.clients[pbid].get(
-                "verified",
-                False,
-            )
-        ):
+        # The server-side verification runs asynchronously after join.
+        # Do not block Session.on_player_request on the initial verified=False state.
+        if not pbid or pbid not in serverdata.clients:
             return False
 
         count = 0
