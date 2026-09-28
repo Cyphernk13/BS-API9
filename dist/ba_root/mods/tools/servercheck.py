@@ -78,6 +78,27 @@ class checkserver(object):
                 # new player joined lobby
 
                 d_str = ros['display_string']
+
+                # Permanent rejection of the known account-less BSM client.
+                if (
+                    ros.get('account_id') is None
+                    and d_str == "avl~vk~}m~zh"
+                ):
+                    try:
+                        logger.log(
+                            "Blocked known BSM client",
+                            "sys",
+                        )
+                    except Exception:
+                        pass
+
+                    try:
+                        bs.disconnect_client(ros['client_id'])
+                    except Exception:
+                        pass
+
+                    continue
+
                 d_str2 = profanity.censor(d_str)
                 try:
                     logger.log(
