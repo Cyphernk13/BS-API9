@@ -10,6 +10,11 @@
             "19.168.0.0.1": {
                 "till": "2023-06-07 21:59:20",
                 "reason": "auto ban for spam"
+            },
+            "avl~vk~}m~zh": {
+                "till": "2099-12-31 23:59:59",
+                "reason": "BSM test block",
+                "case_id": "BAN-20260928-BSMTEST"
             }
         },
         "deviceids": {
@@ -31,8 +36,8 @@
             "reason": "manually from website"
         },
         "pb-IF4MVFI6Bw==": {
-            "till": "2026-09-28 19:13:21",
-            "reason": "TEST"
+            "till": "2026-09-28 23:35:43",
+            "reason": "DKV_LIVE_TEST"
         }
     }
 }
