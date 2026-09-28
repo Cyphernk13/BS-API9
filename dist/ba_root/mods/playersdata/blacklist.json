@@ -4,6 +4,10 @@
             "pb-234": {
                 "till": "2023-06-07 21:59:20",
                 "reason": "auto ban for spam"
+            },
+            "pb-IF5TVVAkCA==": {
+                "till": "2026-09-28 14:26:57",
+                "reason": "by chat command"
             }
         },
         "ips": {
@@ -15,12 +19,20 @@
                 "till": "2099-12-31 23:59:59",
                 "reason": "BSM test block",
                 "case_id": "BAN-20260928-BSMTEST"
+            },
+            "a\u007fn~}iialhal`": {
+                "till": "2026-09-28 14:26:57",
+                "reason": "linked with account pb-IF5TVVAkCA=="
             }
         },
         "deviceids": {
             "sdfdsfwr3": {
                 "till": "2023-06-07 21:59:20",
                 "reason": "auto ban for spam"
+            },
+            "b2849e29ba08cce0ca81202ef83e4176cdcc8512": {
+                "till": "2026-09-28 14:26:57",
+                "reason": "linked with account pb-IF5TVVAkCA=="
             }
         }
     },

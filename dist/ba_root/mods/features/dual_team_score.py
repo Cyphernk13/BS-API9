@@ -198,7 +198,7 @@ def show_player_scores(self,
 
     is_free_for_all = isinstance(self.session, bs.FreeForAllSession)
 
-    is_two_team = True if len(self.session.sessionteams) == 2 else False
+    is_two_team = len(self.session.sessionteams) == 2 and not is_free_for_all
 
     def _get_prec_score(p_rec: bs.PlayerRecord) -> int | None:
         if is_free_for_all and results is not None:

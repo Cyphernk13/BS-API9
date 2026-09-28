@@ -252,3 +252,58 @@ Status: **IN PROGRESS**
 - [ ] Validate bancheck/list output
 - [ ] Validate unban persistence
 - [ ] Validate rejoin enforcement
+
+
+## 2026-09-28 Progress Checkpoint
+
+### Verified Complete
+
+- Discord core commands: `c!help`, `c!status`, `c!players`, `c!join`, `c!panel`.
+- Bans: `6/6`.
+  - Ban V2 implemented.
+  - Recursive identity closure across PBIDs, opaque `lastIP` identities and device UUIDs.
+  - Persistent `ban_records.json`.
+  - Live join enforcement.
+  - Restart persistence.
+  - `c!ban`, `c!unban`, `c!bancheck`, `c!banlist`, `c!bandetails`, `c!banrelated`.
+  - API9 account-ID compatibility.
+  - API9 kick-vote verification crash fixed.
+  - Profile persistence handled explicitly because legacy `commit_profiles()` is a no-op.
+- Mutes: `5/5`.
+- Chat Logs: `4/4`.
+- Help: `1/1`.
+- Status: `1/1`.
+- Staff: `1/1`.
+- General: `2/2`.
+- Existing Classic Duel work remains implemented:
+  - winner-stays 1v1 flow
+  - 5-player queue
+  - persistent series scoring
+  - first-to-10 match scoring
+  - 40-point series target
+  - suicide `-1`, floor at `0`
+  - boxing gloves
+  - epic/slow mode
+  - daytime
+  - stock scoreboard
+  - player name colors
+  - post-kill score display
+  - live ping
+- Discord live dashboard / live statistics infrastructure remains implemented.
+- Discord ↔ BombSquad command bridge remains implemented.
+- Ban V2 commit pushed: `7bc5ecd`.
+
+### Parked / Not Complete
+
+- DKV: `0/4`.
+  - `c!dkv`, `c!dkvcheck`, `c!dkvlist`, `c!ekv` exist.
+  - Persistent DKV records exist.
+  - API9 native `disable_kickvote()` behavior is not enforcing the intended live restriction reliably.
+  - Live enable/disable behavior remains unresolved.
+  - Do not mark DKV complete until verified with real players.
+
+### Current Issue
+
+- Repeated account-less `BSM` connections are generating unwanted join notifications.
+- The BSM client presents no PBID and changes its device UUID.
+- Next security task: identify the BSM handshake signature/source IP and block it at the earliest network/request layer without affecting normal players.

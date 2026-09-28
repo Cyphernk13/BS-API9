@@ -200,8 +200,8 @@
   "auxil"
  ],
  "Default Player Profiles": {
-  "Client Input Device #1": "visvesh",
-  "Client Input Device #2": "__account__",
+  "Client Input Device #1": "__account__",
+  "Client Input Device #2": "ogey",
   "Client Input Device #3": "__account__",
   "Client Input Device #4": "K\u0489I\u0489R\u0489A\u0489",
   "Client Input Device #5": "bisht4189 1.0"
@@ -210,9 +210,9 @@
  "Fleet Zone Ping Last Flush Time": 1790442214,
  "Fleet Zone Pings": {
   "prod": {
-   "delhi.v4": 34.349251623820635,
-   "hyderabad.v4": 15.002470938801043,
-   "mumbai.v4": 2.1345224386779504
+   "delhi.v4": 19.418068216654458,
+   "hyderabad.v4": 29.719498639443508,
+   "mumbai.v4": 1.920848047633974
   }
  },
  "Free-for-All Playlist Randomize": true,
@@ -283,7 +283,7 @@
  "Team Tournament Playlist Selection": "\u041a\u043e\u043f\u0438\u044f \u0421\u0442\u0430\u043d\u0434\u0430\u0440\u0442\u043d\u044b\u0439 \u043f\u043b\u0435\u0439-\u043b\u0438\u0441\u0442 \u0440\u0435\u0436\u0438\u043c\u0430 \u041a\u043e\u043c\u0430\u043d\u0434\u044b",
  "Team Tournament Playlists": {},
  "Teams Series Length": 7,
- "launchCount": 192,
+ "launchCount": 205,
  "lc14173": 1,
  "lc14292": 1
 }

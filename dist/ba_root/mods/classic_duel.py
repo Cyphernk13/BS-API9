@@ -12,20 +12,46 @@ from bascenev1lib.actor.scoreboard import Scoreboard
 from bascenev1lib.game.elimination import Icon
 
 
-# Classic Duel uses a 10-point match.  The normal FFA session assigns
-# placement-based series points (for example, 6 points for first place in
-# a standard 2-player FFA).  This dedicated server should award exactly 10
-# series points to the match winner, so four match wins reach a 40-point
-# series.  The server hosts only this game, so changing the FFA session's
-# point-award hook here is intentional.
+
+# Classic Duel: winner gets 6 series points per match.
 def _cypher_duel_ffa_point_awards(
     session: bs.FreeForAllSession,
 ) -> dict[int, int]:
     del session
-    return {}
+    return {0: 6}
 
 
 bs.FreeForAllSession.get_ffa_point_awards = _cypher_duel_ffa_point_awards
+from bascenev1lib.activity.multiteamvictory import (
+    TeamSeriesVictoryScoreScreenActivity,
+)
+
+
+_DUEL_SERIES_CACHE_KEY = babase.storagename(
+    'cypher_duel_series_scores'
+)
+
+
+def _clear_duel_series_cache(self: Any) -> None:
+    try:
+        session = self.session
+        if session is not None:
+            cache = session.customdata.get(
+                _DUEL_SERIES_CACHE_KEY
+            )
+            if isinstance(cache, dict):
+                cache.clear()
+    except Exception:
+        pass
+
+    _DUEL_ORIGINAL_FINAL_SCREEN_ON_BEGIN(self)
+
+
+_DUEL_ORIGINAL_FINAL_SCREEN_ON_BEGIN = (
+    TeamSeriesVictoryScoreScreenActivity.on_begin
+)
+TeamSeriesVictoryScoreScreenActivity.on_begin = _clear_duel_series_cache
+_cypher_duel_series_screen_patch = True
 
 
 class ModLang:
@@ -89,6 +115,7 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
     # who disconnect between map activities.  Connected players also retain
     # their normal SessionTeam score automatically.
     _SERIES_SCORE_STORE_KEY = babase.storagename('cypher_duel_series_scores')
+    _LAST_GAME_NUMBER_KEY = babase.storagename('cypher_duel_last_game_number')
 
     @classmethod
     def get_available_settings(
@@ -140,6 +167,7 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
         self._queue: list[Player] = []
         self._active_players: list[Player] = []
         self._initial_duel_complete = False
+        self._vacant_duel_slot: int | None = None
         self._series_points_awarded = False
 
         self.slow_motion = True
@@ -169,36 +197,33 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
     def on_begin(self) -> None:
         super().on_begin()
 
-        # A new Activity means a new 10-point match, so round scores reset.
-        # The Session itself remains alive across maps, preserving the series.
+        # A new Activity is a new 10-point match.
         self.session.customdata[self._ROUND_SCORE_STORE_KEY] = {}
         self.session.customdata[self._ROUND_KILLS_STORE_KEY] = {}
         self._series_points_awarded = False
+
         series_scores = self.session.customdata.setdefault(
             self._SERIES_SCORE_STORE_KEY, {}
         )
         if not isinstance(series_scores, dict):
-            self.session.customdata[self._SERIES_SCORE_STORE_KEY] = {}
-            series_scores = self.session.customdata[
+            series_scores = {}
+            self.session.customdata[
                 self._SERIES_SCORE_STORE_KEY
-            ]
+            ] = series_scores
 
-        # On the first game of a new series, clear the safety-net store.
-        # get_game_number() restarts at 0 when a new FFA series begins.
-        if self.session.get_game_number() == 0:
+        # MultiTeamSession resets SessionTeam scores to 0 when a series ends,
+        # then starts the next series at game 1. Clear our reconnect safety
+        # store at that exact transition.
+        game_number = self.session.get_game_number()
+        if (
+            game_number == 1
+            and self.session.sessionteams
+            and all(
+                int(team.customdata.get('score', 0)) == 0
+                for team in self.session.sessionteams
+            )
+        ):
             series_scores.clear()
-
-        # Synchronize currently connected SessionTeam series scores into the
-        # account store before players are restored.
-        for sessionteam in self.session.sessionteams:
-            if len(sessionteam.players) != 1:
-                continue
-            sessionplayer = sessionteam.players[0]
-            account_id = self._get_sessionplayer_account_id(sessionplayer)
-            if account_id:
-                series_scores[account_id] = int(
-                    sessionteam.customdata.get('score', 0)
-                )
 
         self.setup_standard_time_limit(self._time_limit)
 
@@ -259,13 +284,15 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
             self._queue.remove(player)
 
         if player in self._active_players:
+            if player.duel_slot in (0, 1):
+                self._vacant_duel_slot = player.duel_slot
             self._active_players.remove(player)
 
         player.in_game = False
         player.playervs1 = False
         player.playervs2 = False
         player.duel_slot = None
-        player.icons = []
+        self._clear_player_icons(player)
         super().on_player_leave(player)
 
         self._start_next_duel()
@@ -284,6 +311,7 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
             spaz.equip_boxing_gloves()
 
         self._create_ping_label(player)
+        self._update_ping_labels()
 
         # Score text is intentionally NOT shown on spawn.
         # It is shown only by the kill event.
@@ -494,12 +522,20 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
                 continue
 
             player.in_game = True
-            player.duel_slot = len(self._active_players)
 
-            if player.duel_slot == 0:
-                player.playervs1 = True
+            if self._vacant_duel_slot in (0, 1):
+                player.duel_slot = self._vacant_duel_slot
+                self._vacant_duel_slot = None
             else:
-                player.playervs2 = True
+                used_slots = {
+                    p.duel_slot
+                    for p in self._active_players
+                    if p.duel_slot in (0, 1)
+                }
+                player.duel_slot = 0 if 0 not in used_slots else 1
+
+            player.playervs1 = player.duel_slot == 0
+            player.playervs2 = player.duel_slot == 1
 
             self._active_players.append(player)
             self.spawn_player(player)
@@ -635,6 +671,18 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
             )
 
 
+    def _clear_player_icons(self, player: Player) -> None:
+        for icon in list(player.icons):
+            try:
+                icon.handlemessage(bs.DieMessage())
+            except Exception:
+                try:
+                    if icon.node:
+                        icon.node.delete()
+                except Exception:
+                    pass
+        player.icons = []
+
     def _clear_icons(self) -> None:
         for player in self.players:
             for icon in list(player.icons):
@@ -649,15 +697,14 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
             player.icons = []
 
     def _update_icons(self) -> None:
-        for player in self.players:
-            player.icons = []
+        self._clear_icons()
 
         # Active duelists.
         for player in self._active_players:
             if player.playervs1:
-                xval = -60
+                xval = -75
             elif player.playervs2:
-                xval = 60
+                xval = 75
             else:
                 continue
 
@@ -666,7 +713,7 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
                     player,
                     position=(xval, 40),
                     scale=1.0,
-                    name_maxwidth=130,
+                    name_maxwidth=120,
                     name_scale=0.8,
                     flatness=0.0,
                     shadow=0.5,
@@ -676,9 +723,9 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
             )
 
         # Original BS-Duels queue.
-        x_right = 125.0
-        x_left = -125.0
-        x_step = 78.0 * 0.56
+        x_right = 150.0
+        x_left = -150.0
+        x_step = 55.0
 
         for player in self._queue[:5]:
             player.icons.append(
@@ -722,6 +769,8 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
         player = msg.getplayer(Player)
 
         if player in self._active_players:
+            if player.duel_slot in (0, 1):
+                self._vacant_duel_slot = player.duel_slot
             self._active_players.remove(player)
 
         player.in_game = False
@@ -729,10 +778,13 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
         player.playervs2 = False
         player.duel_slot = None
         self._delete_ping_label(player)
-        player.icons = []
+        self._clear_player_icons(player)
         # The loser goes to the back of the queue.
         if player.exists():
-            self._queue.append(player)
+            if self._queue:
+                self._queue.insert(1, player)
+            else:
+                self._queue.append(player)
 
         killer = msg.getkillerplayer(Player)
 
@@ -781,31 +833,12 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
 
         self._series_points_awarded = True
 
-        # Award 1 SERIES point per genuine opponent kill from this match.
-        # Suicide penalties only affect the 10-point round score; they do not
-        # erase a kill already earned.
-        series_scores = self._get_series_score_store()
-        round_kills = self._get_round_kills_store()
-
-        for sessionteam in self.session.sessionteams:
-            if len(sessionteam.players) != 1:
-                continue
-
-            sessionplayer = sessionteam.players[0]
-            account_id = self._get_sessionplayer_account_id(sessionplayer)
-            if not account_id:
-                continue
-
-            kills = max(0, int(round_kills.get(account_id, 0)))
-            old_score = int(sessionteam.customdata.get('score', 0))
-            new_score = old_score + kills
-
-            sessionteam.customdata['previous_score'] = old_score
-            sessionteam.customdata['score'] = new_score
-            series_scores[account_id] = new_score
-
         results = bs.GameResults()
         for team in self.teams:
             results.set_team_score(team, team.score)
 
+        # FreeForAllSession now handles:
+        #   winner = +6 series points
+        #   losers = +0 series points
+        #   previous_score = correct value for animated score screen
         self.end(results=results)
