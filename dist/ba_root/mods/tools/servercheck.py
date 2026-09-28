@@ -72,32 +72,32 @@ class checkserver(object):
                         f'Player disconnected, reached max players per IP address || {ros["account_id"]}',
                         "playerjoin")
                     continue
+            # Reject known account-less BSM before adding it to the
+            # tracked player list or emitting the normal join event.
+            d_str = ros['display_string']
+            if (
+                ros.get('account_id') is None
+                and d_str == "avl~vk~}m~zh"
+            ):
+                try:
+                    logger.log(
+                        "Blocked known BSM client",
+                        "sys",
+                    )
+                except Exception:
+                    pass
+
+                try:
+                    bs.disconnect_client(ros['client_id'])
+                except Exception:
+                    pass
+
+                continue
+
             newPlayers.append(ros['account_id'])
             if ros['account_id'] not in self.players and ros[
                     'client_id'] != -1:
                 # new player joined lobby
-
-                d_str = ros['display_string']
-
-                # Permanent rejection of the known account-less BSM client.
-                if (
-                    ros.get('account_id') is None
-                    and d_str == "avl~vk~}m~zh"
-                ):
-                    try:
-                        logger.log(
-                            "Blocked known BSM client",
-                            "sys",
-                        )
-                    except Exception:
-                        pass
-
-                    try:
-                        bs.disconnect_client(ros['client_id'])
-                    except Exception:
-                        pass
-
-                    continue
 
                 d_str2 = profanity.censor(d_str)
                 try:
