@@ -7,10 +7,11 @@ import _babase
 import setting
 from playersdata import pdata
 from serverdata import serverdata
+from tools import logger
 from .commands import normal_commands , management, fun , cheats
 import bascenev1 as bs
-from .handlers import check_permissions
-from .handlers import clientid_to_accountid
+from .handlers import check_permissions, clientid_to_accountid
+from .commands.handlers import send, send_usage, COMMAND_USAGE
 
 settings = setting.get_settings_data()
 
@@ -39,60 +40,128 @@ def command_type(command):
 
 
 def execute(msg, clientid):
-    """
-    Command Execution
+    parts = msg.strip().lower().split()
+    if not parts:
+        return None
 
-    Parameters:
-        msg : str
-        clientid : int
-
-    Returns:
-        any
-    """
-    command = msg.lower().split(" ")[0].split("/")[1]
-    arguments = msg.lower().split(" ")[1:]
+    command = parts[0].lstrip("/")
+    arguments = parts[1:]
     accountid = clientid_to_accountid(clientid)
 
-    if command_type(command) == "Normal":
+    # Public player-facing command information.
+    if command == "help":
         normal_commands.ExcelCommand(command, arguments, clientid, accountid)
+        return None
 
-    elif command_type(command) == "Manage":
-        if check_permissions(accountid, command):
+    if command in ("acl", "vcl"):
+        roles = pdata.get_roles()
+        role_name = "admin" if command == "acl" else "vip"
+        role = roles.get(role_name)
+
+        if role is None:
+            send(f"{role_name.title()} command list unavailable.", clientid)
+            return None
+
+        commands = sorted(set(role.get("commands", [])))
+        title = "Admin Command List" if command == "acl" else "VIP Command List"
+
+        lines = [f"{title} ({len(commands)})"]
+        for i in range(0, len(commands), 6):
+            lines.append("  ".join(f"/{x}" for x in commands[i:i + 6]))
+
+        send("\n".join(lines), clientid)
+        return None
+
+    ctype = command_type(command)
+
+    if ctype is None:
+        send(f"Unknown command: /{command}\nUse /help.", clientid)
+        return None
+
+    # Permission check before argument validation.
+    if ctype != "Normal" and not check_permissions(accountid, command):
+        send("Access denied.", clientid)
+        return None
+
+    usage = COMMAND_USAGE.get(command)
+    required = {
+        "speed": (1, 1),
+        "tint": (3, 3),
+        "maxplayers": (1, 1),
+        "max": (1, 1),
+        "createteam": (1, 1),
+        "playlist": (1, 1),
+        "kick": (1, 1),
+        "ban": (1, 2),
+        "unban": (1, 1),
+        "info": (1, 1),
+        "gp": (1, 1),
+        "party": (1, 1),
+        "kickvote": (2, 2),
+        "addrole": (2, 2),
+        "removerole": (2, 2),
+        "getroles": (1, 1),
+        "addcommand": (2, 2),
+        "addcmd": (2, 2),
+        "removecommand": (2, 2),
+        "removecmd": (2, 2),
+        "changetag": (2, 2),
+        "customtag": (2, 2),
+        "customeffect": (2, 2),
+        "effect": (2, 2),
+        "removetag": (1, 1),
+        "removeeffect": (1, 1),
+        "spectators": (1, 1),
+        "lobbytime": (1, 1),
+        "celeb": (1, 1),
+        "celebrate": (1, 1),
+        "inv": (1, 1),
+        "invisible": (1, 1),
+        "headless": (1, 1),
+        "creepy": (1, 1),
+        "creep": (1, 1),
+    }
+
+    if command in required:
+        min_args, max_args = required[command]
+        if not (min_args <= len(arguments) <= max_args):
+            send_usage(command, clientid)
+            return None
+
+    try:
+        if ctype == "Normal":
+            normal_commands.ExcelCommand(command, arguments, clientid, accountid)
+
+        elif ctype == "Manage":
             management.ExcelCommand(command, arguments, clientid, accountid)
-            bs.broadcastmessage("Executed", transient=True, clients=[clientid])
-        else:
-            bs.broadcastmessage("access denied", transient=True,
-                                clients=[clientid])
 
-    elif command_type(command) == "Fun":
-        if check_permissions(accountid, command):
+        elif ctype == "Fun":
             fun.ExcelCommand(command, arguments, clientid, accountid)
-            bs.broadcastmessage("Executed", transient=True, clients=[clientid])
-        else:
-            bs.broadcastmessage("access denied", transient=True,
-                                clients=[clientid])
 
-    elif command_type(command) == "Cheats":
-        if check_permissions(accountid, command):
+        elif ctype == "Cheats":
             cheats.ExcelCommand(command, arguments, clientid, accountid)
-            bs.broadcastmessage("Executed", transient=True, clients=[clientid])
-        else:
-            bs.broadcastmessage("access denied", transient=True,
-                                clients=[clientid])
+
+        send(f"OK: /{command}", clientid)
+
+    except Exception as exc:
+        logger.log(f"Chat command /{command} failed: {exc}")
+        send(f"Command failed: /{command}", clientid)
+
     now = datetime.now()
     if accountid in pdata.get_blacklist()[
         "muted-ids"] and now < datetime.strptime(
         pdata.get_blacklist()["muted-ids"][accountid]["till"],
         "%Y-%m-%d %H:%M:%S"):
-        bs.broadcastmessage("You are on mute", transient=True,
-                            clients=[clientid])
+        send("You are on mute.", clientid)
         return None
+
     if serverdata.muted:
         return None
+
     if settings["ChatCommands"]["BrodcastCommand"]:
         return msg
-    return None
 
+    return None
 
 def QuickAccess(msg, client_id):
     from bascenev1lib.actor import popuptext

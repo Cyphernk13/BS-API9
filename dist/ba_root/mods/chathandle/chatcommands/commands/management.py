@@ -1,4 +1,4 @@
-from .handlers import send
+from .handlers import send, send_usage
 from tools import playlist
 import random
 
@@ -88,7 +88,7 @@ def ExcelCommand(command, arguments, clientid, accountid):
             tint(arguments)
         case 'pause' | 'pausegame':
             pause()
-        case 'cameraMode' | 'camera_mode' | 'rotate_camera':
+        case 'cameramode' | 'camera_mode' | 'rotate_camera':
             rotate_camera()
         case 'createrole':
             create_role(arguments)

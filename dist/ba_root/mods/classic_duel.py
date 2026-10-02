@@ -781,10 +781,7 @@ class DuelClassicGame(bs.TeamGameActivity[Player, Team]):
         self._clear_player_icons(player)
         # The loser goes to the back of the queue.
         if player.exists():
-            if self._queue:
-                self._queue.insert(1, player)
-            else:
-                self._queue.append(player)
+            self._queue.append(player)
 
         killer = msg.getkillerplayer(Player)
 

@@ -2,7 +2,7 @@
     "startDate": "26-09-2026",
     "stats": {
         "pb-IF4VAk4a": {
-            "rank": 16,
+            "rank": 32,
             "name": "pb-IF4VAk4a",
             "scores": 0,
             "total_damage": 0.0,
@@ -17,18 +17,18 @@
         "pb-IF4JXmhZPA==": {
             "rank": 2,
             "name": "Cypher13",
-            "scores": 1050,
+            "scores": 1100,
             "total_damage": 0.0,
-            "kills": 114,
-            "deaths": 155,
-            "games": 34,
-            "kd": 0.735,
-            "avg_score": 30.882,
-            "last_seen": "2026-09-28 03:31:30.516849",
+            "kills": 120,
+            "deaths": 166,
+            "games": 35,
+            "kd": 0.722,
+            "avg_score": 31.428,
+            "last_seen": "2026-09-29 18:00:20.466067",
             "aid": "pb-IF4JXmhZPA=="
         },
         "pb-IF4yUlQ7Cw==": {
-            "rank": 8,
+            "rank": 18,
             "name": "BuahZakar",
             "scores": 70,
             "total_damage": 0.0,
@@ -41,7 +41,7 @@
             "aid": "pb-IF4yUlQ7Cw=="
         },
         "pb-IF4pXkEeFg==": {
-            "rank": 10,
+            "rank": 20,
             "name": "HANNCOKK",
             "scores": 60,
             "total_damage": 0.0,
@@ -54,7 +54,7 @@
             "aid": "pb-IF4pXkEeFg=="
         },
         "pb-IF4cU00RUw==": {
-            "rank": 9,
+            "rank": 19,
             "name": "Underwat19",
             "scores": 60,
             "total_damage": 0.0,
@@ -67,7 +67,7 @@
             "aid": "pb-IF4cU00RUw=="
         },
         "pb-IF4KXncCKA==": {
-            "rank": 4,
+            "rank": 13,
             "name": "Some1Ulove",
             "scores": 95,
             "total_damage": 0.0,
@@ -82,18 +82,18 @@
         "pb-IF4MVFI6Bw==": {
             "rank": 1,
             "name": "impu",
-            "scores": 1325,
+            "scores": 1810,
             "total_damage": 0.0,
-            "kills": 146,
-            "deaths": 46,
-            "games": 28,
-            "kd": 3.173,
-            "avg_score": 47.321,
-            "last_seen": "2026-09-28 03:31:31.438067",
+            "kills": 204,
+            "deaths": 94,
+            "games": 33,
+            "kd": 2.17,
+            "avg_score": 54.848,
+            "last_seen": "2026-09-29 18:17:06.162331",
             "aid": "pb-IF4MVFI6Bw=="
         },
         "pb-IF4BUFpSMg==": {
-            "rank": 7,
+            "rank": 16,
             "name": "Hacker101",
             "scores": 80,
             "total_damage": 0.0,
@@ -106,20 +106,20 @@
             "aid": "pb-IF4BUFpSMg=="
         },
         "pb-IF49XmgaBg==": {
-            "rank": 5,
+            "rank": 4,
             "name": "JBoyXLuffy",
-            "scores": 85,
+            "scores": 275,
             "total_damage": 0.0,
-            "kills": 12,
-            "deaths": 8,
-            "games": 1,
-            "kd": 1.5,
-            "avg_score": 85.0,
-            "last_seen": "2026-09-27 09:57:21.901161",
+            "kills": 35,
+            "deaths": 30,
+            "games": 6,
+            "kd": 1.166,
+            "avg_score": 45.833,
+            "last_seen": "2026-09-29 18:20:42.305657",
             "aid": "pb-IF49XmgaBg=="
         },
         "pb-IF5SXkIpAA==": {
-            "rank": 12,
+            "rank": 23,
             "name": "Witcher0o0",
             "scores": 45,
             "total_damage": 0.0,
@@ -132,7 +132,7 @@
             "aid": "pb-IF5SXkIpAA=="
         },
         "pb-IF4mXncnIA==": {
-            "rank": 3,
+            "rank": 12,
             "name": "ah xl",
             "scores": 125,
             "total_damage": 0.0,
@@ -145,7 +145,7 @@
             "aid": "pb-IF4mXncnIA=="
         },
         "pb-IF4lUUwtNA==": {
-            "rank": 14,
+            "rank": 27,
             "name": "Shanksㅤ",
             "scores": 20,
             "total_damage": 0.0,
@@ -158,7 +158,7 @@
             "aid": "pb-IF4lUUwtNA=="
         },
         "pb-IF4zUXEbAg==": {
-            "rank": 15,
+            "rank": 28,
             "name": "apiprfk",
             "scores": 20,
             "total_damage": 0.0,
@@ -171,7 +171,7 @@
             "aid": "pb-IF4zUXEbAg=="
         },
         "pb-IF4hCm0h": {
-            "rank": 11,
+            "rank": 21,
             "name": "NoNameC8472900",
             "scores": 35,
             "total_damage": 0.0,
@@ -184,7 +184,7 @@
             "aid": "pb-IF4hCm0h"
         },
         "pb-IF4mU1AOHw==": {
-            "rank": 13,
+            "rank": 24,
             "name": "NoNameE101715",
             "scores": 50,
             "total_damage": 0.0,
@@ -197,7 +197,7 @@
             "aid": "pb-IF4mU1AOHw=="
         },
         "pb-IF5TVVAkCA==": {
-            "rank": 6,
+            "rank": 14,
             "name": "$@√@&€®™",
             "scores": 110,
             "total_damage": 0.0,
@@ -208,6 +208,253 @@
             "avg_score": 36.666,
             "last_seen": "2026-09-28 02:26:35.477507",
             "aid": "pb-IF5TVVAkCA=="
+        },
+        "pb-IF42MRNd": {
+            "rank": 3,
+            "name": "Malenia",
+            "scores": 330,
+            "total_damage": 0.0,
+            "kills": 39,
+            "deaths": 32,
+            "games": 4,
+            "kd": 1.218,
+            "avg_score": 82.5,
+            "last_seen": "2026-09-28 15:29:09.387992",
+            "aid": "pb-IF42MRNd"
+        },
+        "pb-IF4nU1g8Dw==": {
+            "rank": 17,
+            "name": "SENSEII ‎",
+            "scores": 100,
+            "total_damage": 0.0,
+            "kills": 10,
+            "deaths": 9,
+            "games": 1,
+            "kd": 1.111,
+            "avg_score": 100.0,
+            "last_seen": "2026-09-28 15:14:26.868897",
+            "aid": "pb-IF4nU1g8Dw=="
+        },
+        "pb-IF4jVXgmIw==": {
+            "rank": 7,
+            "name": "🇼‌🇭‌🇮‌🇹‌🇪‌",
+            "scores": 220,
+            "total_damage": 0.0,
+            "kills": 28,
+            "deaths": 44,
+            "games": 4,
+            "kd": 0.636,
+            "avg_score": 55.0,
+            "last_seen": "2026-09-28 15:29:07.700871",
+            "aid": "pb-IF4jVXgmIw=="
+        },
+        "pb-IF4AUVMhUg==": {
+            "rank": 33,
+            "name": "TorridHope",
+            "scores": 0,
+            "total_damage": 0.0,
+            "kills": 0,
+            "deaths": 0,
+            "games": 1,
+            "kd": 0.0,
+            "avg_score": 0.0,
+            "last_seen": "2026-09-28 15:29:09.937433",
+            "aid": "pb-IF4AUVMhUg=="
+        },
+        "pb-IF4OV1cfBg==": {
+            "rank": 34,
+            "name": "paritoshrocco",
+            "scores": 0,
+            "total_damage": 0.0,
+            "kills": 0,
+            "deaths": 1,
+            "games": 1,
+            "kd": 0.0,
+            "avg_score": 0.0,
+            "last_seen": "2026-09-29 17:46:03.445564",
+            "aid": "pb-IF4OV1cfBg=="
+        },
+        "pb-IF4TUW47IQ==": {
+            "rank": 22,
+            "name": "Longsta688",
+            "scores": 50,
+            "total_damage": 0.0,
+            "kills": 6,
+            "deaths": 15,
+            "games": 2,
+            "kd": 0.4,
+            "avg_score": 25.0,
+            "last_seen": "2026-09-29 18:17:08.278049",
+            "aid": "pb-IF4TUW47IQ=="
+        },
+        "pb-IF4AXng4FA==": {
+            "rank": 35,
+            "name": "InertRepu2",
+            "scores": 0,
+            "total_damage": 0.0,
+            "kills": 0,
+            "deaths": 0,
+            "games": 1,
+            "kd": 0.0,
+            "avg_score": 0.0,
+            "last_seen": "2026-09-29 18:17:08.708506",
+            "aid": "pb-IF4AXng4FA=="
+        },
+        "pb-IF4-XnYpIg==": {
+            "rank": 29,
+            "name": "PoliticCri",
+            "scores": 20,
+            "total_damage": 0.0,
+            "kills": 2,
+            "deaths": 5,
+            "games": 1,
+            "kd": 0.4,
+            "avg_score": 20.0,
+            "last_seen": "2026-09-29 18:20:43.035203",
+            "aid": "pb-IF4-XnYpIg=="
+        },
+        "pb-IF4GXkIYLQ==": {
+            "rank": 15,
+            "name": "CreepyCa17",
+            "scores": 95,
+            "total_damage": 0.0,
+            "kills": 11,
+            "deaths": 26,
+            "games": 2,
+            "kd": 0.423,
+            "avg_score": 47.5,
+            "last_seen": "2026-09-30 17:08:48.333003",
+            "aid": "pb-IF4GXkIYLQ=="
+        },
+        "pb-IF4WXkFSKA==": {
+            "rank": 9,
+            "name": "𝑃ℎ𝑎𝑛𝑡𝑎𝑠𝑚",
+            "scores": 180,
+            "total_damage": 0.0,
+            "kills": 22,
+            "deaths": 13,
+            "games": 2,
+            "kd": 1.692,
+            "avg_score": 90.0,
+            "last_seen": "2026-09-30 17:08:48.828424",
+            "aid": "pb-IF4WXkFSKA=="
+        },
+        "pb-IF4FXhkRFw==": {
+            "rank": 31,
+            "name": "Pàn",
+            "scores": 10,
+            "total_damage": 0.0,
+            "kills": 1,
+            "deaths": 2,
+            "games": 1,
+            "kd": 0.5,
+            "avg_score": 10.0,
+            "last_seen": "2026-09-30 17:08:49.428961",
+            "aid": "pb-IF4FXhkRFw=="
+        },
+        "pb-IF4iUE4bEg==": {
+            "rank": 8,
+            "name": "🏆101🏆",
+            "scores": 175,
+            "total_damage": 0.0,
+            "kills": 23,
+            "deaths": 11,
+            "games": 2,
+            "kd": 2.09,
+            "avg_score": 87.5,
+            "last_seen": "2026-09-30 18:44:49.705885",
+            "aid": "pb-IF4iUE4bEg=="
+        },
+        "pb-IF4DXkEsKA==": {
+            "rank": 25,
+            "name": "orewaluff4",
+            "scores": 40,
+            "total_damage": 0.0,
+            "kills": 5,
+            "deaths": 14,
+            "games": 1,
+            "kd": 0.357,
+            "avg_score": 40.0,
+            "last_seen": "2026-09-30 18:39:24.012680",
+            "aid": "pb-IF4DXkEsKA=="
+        },
+        "pb-JiNJARFZV0NEXldDGUFTVFBKFEFcRVZB": {
+            "rank": 11,
+            "name": "freakey",
+            "scores": 125,
+            "total_damage": 0.0,
+            "kills": 15,
+            "deaths": 34,
+            "games": 3,
+            "kd": 0.441,
+            "avg_score": 41.666,
+            "last_seen": "2026-09-30 18:58:22.534721",
+            "aid": "pb-JiNJARFZV0NEXldDGUFTVFBKFEFcRVZB"
+        },
+        "pb-IF5XXhkcNg==": {
+            "rank": 10,
+            "name": "Devoti1574",
+            "scores": 195,
+            "total_damage": 0.0,
+            "kills": 22,
+            "deaths": 14,
+            "games": 3,
+            "kd": 1.571,
+            "avg_score": 65.0,
+            "last_seen": "2026-09-30 18:58:23.208442",
+            "aid": "pb-IF5XXhkcNg=="
+        },
+        "pb-IF4XNWsZ": {
+            "rank": 30,
+            "name": "rash",
+            "scores": 20,
+            "total_damage": 0.0,
+            "kills": 2,
+            "deaths": 8,
+            "games": 2,
+            "kd": 0.25,
+            "avg_score": 10.0,
+            "last_seen": "2026-09-30 18:58:24.206497",
+            "aid": "pb-IF4XNWsZ"
+        },
+        "pb-IF4AVHUdPQ==": {
+            "rank": 5,
+            "name": "SumanthTFD",
+            "scores": 280,
+            "total_damage": 0.0,
+            "kills": 31,
+            "deaths": 38,
+            "games": 3,
+            "kd": 0.815,
+            "avg_score": 93.333,
+            "last_seen": "2026-10-01 22:05:48.435480",
+            "aid": "pb-IF4AVHUdPQ=="
+        },
+        "pb-IF41V1gHIA==": {
+            "rank": 6,
+            "name": "ꪀꪖꪑ꠸ꪀꪮ ᧁꪖꪑ꠸ꪀᧁ",
+            "scores": 280,
+            "total_damage": 0.0,
+            "kills": 31,
+            "deaths": 39,
+            "games": 3,
+            "kd": 0.794,
+            "avg_score": 93.333,
+            "last_seen": "2026-10-01 22:05:49.660403",
+            "aid": "pb-IF41V1gHIA=="
+        },
+        "pb-IF4hU0wSVg==": {
+            "rank": 26,
+            "name": "☞꧁ℙ𝔸𝕊𝕂𝔸𝕃꧂☜",
+            "scores": 30,
+            "total_damage": 0.0,
+            "kills": 3,
+            "deaths": 1,
+            "games": 1,
+            "kd": 3.0,
+            "avg_score": 30.0,
+            "last_seen": "2026-10-01 22:05:50.455390",
+            "aid": "pb-IF4hU0wSVg=="
         }
     }
 }

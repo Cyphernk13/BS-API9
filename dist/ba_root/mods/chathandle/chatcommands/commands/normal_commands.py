@@ -6,9 +6,9 @@ from stats import mystats
 
 import bascenev1 as bs
 from babase._general import Call
-from .handlers import send
+from .handlers import send, COMMAND_USAGE
 
-Commands = ['me', 'list', 'uniqeid', 'ping']
+Commands = ['me', 'list', 'uniqeid', 'ping', 'help']
 CommandAliases = ['stats', 'score', 'rank',
                   'myself', 'l', 'id', 'pb-id', 'pb', 'accountid']
 
@@ -26,7 +26,9 @@ def ExcelCommand(command, arguments, clientid, accountid):
     Returns:
         None
     """
-    if command in ['me', 'stats', 'score', 'rank', 'myself']:
+    if command == 'help':
+        help_command(clientid, accountid, arguments)
+    elif command in ['me', 'stats', 'score', 'rank', 'myself']:
         fetch_send_stats(accountid, clientid)
 
     elif command in ['list', 'l']:
@@ -124,3 +126,30 @@ def accountid_request(arguments, clientid, accountid):
             send(f" {name}'s account id is '{accountid}' ", clientid)
         except:
             return
+
+
+
+def help_command(clientid, accountid, arguments):
+    if arguments:
+        command = arguments[0].lower()
+        usage = COMMAND_USAGE.get(command)
+
+        if usage:
+            send(f"/{command}\nUsage: {usage}", clientid)
+        elif command == "acl":
+            send("Usage: /acl\nShows the Admin command list.", clientid)
+        elif command == "vcl":
+            send("Usage: /vcl\nShows the VIP command list.", clientid)
+        else:
+            send(f"Unknown command: /{command}", clientid)
+        return
+
+    send(
+        "Player Commands\n"
+        "/help  /ping  /list  /id  /stats  /me\n"
+        "/acl  Admin command list\n"
+        "/vcl  VIP command list\n"
+        "\n"
+        "Use /help <command> for usage.",
+        clientid
+    )
