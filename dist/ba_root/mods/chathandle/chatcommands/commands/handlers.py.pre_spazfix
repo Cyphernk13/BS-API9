@@ -181,18 +181,10 @@ def get_spaz_characters():
 
 
 def resolve_spaz_character(name):
-    """Resolve a registered character name or a unique shorthand."""
-    wanted_raw = str(name).strip().lower()
-    if not wanted_raw:
+    """Resolve a character name case-insensitively, including style names."""
+    wanted = str(name).strip().lower()
+    if not wanted:
         return None
-
-    def normalize(value):
-        return "".join(
-            ch for ch in str(value).lower()
-            if ch.isalnum()
-        )
-
-    wanted = normalize(wanted_raw)
 
     try:
         classic = bs.app.classic
@@ -201,36 +193,13 @@ def resolve_spaz_character(name):
 
         appearances = getattr(classic, "spaz_appearances", None) or {}
 
-        # 1. Exact registered appearance name or style.
         for key, appearance in appearances.items():
-            if normalize(key) == wanted:
+            if str(key).lower() == wanted:
                 return str(key)
 
             style = getattr(appearance, "style", None)
-            if style is not None and normalize(style) == wanted:
+            if style is not None and str(style).lower() == wanted:
                 return str(key)
-
-        # 2. Unique first-word shorthand.
-        # Examples:
-        #   Jack   -> Jack Morgan
-        #   Easter -> Easter Bunny
-        #   Santa  -> Santa Claus
-        #   Snake  -> Snake Shadow
-        #   Todd   -> Todd McBurton
-        #
-        # Only accept a shorthand when it identifies exactly one
-        # registered appearance.
-        matches = []
-
-        for key in appearances.keys():
-            key_text = str(key)
-            first_word = re.split(r"[\s_-]+", key_text.strip())[0]
-
-            if normalize(first_word) == wanted:
-                matches.append(str(key))
-
-        if len(matches) == 1:
-            return matches[0]
 
     except Exception:
         return None

@@ -114,10 +114,10 @@
         ],
         "commands": [],
         "ids": [
-            "pb-IF4MVFI6Bw==",
             "pb-IF4JXmhZPA==",
-            "pb-IF42MRNd",
+            "pb-IF4MVFI6Bw==",
             "pb-IF49XmgaBg==",
+            "pb-IF42MRNd",
             "pb-IF4AVHUdPQ=="
         ]
     },
@@ -336,6 +336,16 @@
             "removeeffect",
             "whitelist"
         ],
+        "ids": []
+    },
+    "/curse": {
+        "tag": "/curse",
+        "tagcolor": [
+            1,
+            1,
+            1
+        ],
+        "commands": [],
         "ids": []
     }
 }

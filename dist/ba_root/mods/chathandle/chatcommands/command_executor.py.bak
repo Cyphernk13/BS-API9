@@ -126,6 +126,7 @@ def execute(msg, clientid):
 
     usage = COMMAND_USAGE.get(command)
     required = {
+        "spaz": (2, 2),
         "kill": (1, 1),
         "heal": (1, 1),
         "curse": (1, 1),
@@ -184,12 +185,6 @@ def execute(msg, clientid):
         "creep": (1, 1),
     }
 
-    # /spaz accepts a multi-word character name, so only the
-    # player target is fixed; the rest of the arguments form the name.
-    if command == "spaz" and len(arguments) < 2:
-        send_usage(command, clientid)
-        return None
-
     if command in required:
         min_args, max_args = required[command]
         if not (min_args <= len(arguments) <= max_args):
@@ -197,52 +192,21 @@ def execute(msg, clientid):
             return None
 
     try:
-        result = None
-
         if ctype == "Normal":
-            result = normal_commands.ExcelCommand(
-                command,
-                arguments,
-                clientid,
-                accountid
-            )
+            normal_commands.ExcelCommand(command, arguments, clientid, accountid)
+            # Normal commands (/ping, /list, /id, /me ...) already reply
+            # with their own meaningful content -- no need for a redundant
+            # "OK: /command" chat line on top of that.
 
         else:
             if ctype == "Manage":
-                if command in ("dv", "day"):
-                    result = management.day_vision()
-                else:
-                    result = management.ExcelCommand(
-                        command,
-                        arguments,
-                        clientid,
-                        accountid
-                    )
-
+                management.ExcelCommand(command, arguments, clientid, accountid)
             elif ctype == "Fun":
-                if command == "spaz":
-                    result = fun.spaz(arguments, clientid)
-                else:
-                    result = fun.ExcelCommand(
-                        command,
-                        arguments,
-                        clientid,
-                        accountid
-                    )
-
+                fun.ExcelCommand(command, arguments, clientid, accountid)
             elif ctype == "Cheats":
-                result = cheats.ExcelCommand(
-                    command,
-                    arguments,
-                    clientid,
-                    accountid
-                )
+                cheats.ExcelCommand(command, arguments, clientid, accountid)
 
-            # Only show the success popup when the handler actually
-            # succeeded. Existing handlers returning None are treated
-            # as successful for backwards compatibility.
-            if result is not False:
-                send_role_acceptance(accountid, clientid)
+            send_role_acceptance(accountid, clientid)
 
     except Exception as exc:
         logger.log(f"Chat command /{command} failed: {exc}")

@@ -210,7 +210,7 @@ class Floater(bs.Actor):
 
 
 def assignFloInputs(clientID: int):
-    with bs.get_foreground_host_activity().context():
+    with bs.get_foreground_host_activity().context:
         activity = bs.getactivity()
         if not hasattr(activity, 'flo') or not activity.flo.node.exists():
             try:
@@ -228,7 +228,7 @@ def assignFloInputs(clientID: int):
             'You Gained Control Over The Floater!\n Press Bomb to Throw Bombs and Punch to leave!',
             clients=[clientID], transient=True, color=(0, 1, 1))
 
-        for i in _babase.get_foreground_host_activity().players:
+        for i in bs.get_foreground_host_activity().players:
             if i.sessionplayer.inputdevice.client_id == clientID:
                 def dis(i, floater):
                     i.actor.node.invincible = False

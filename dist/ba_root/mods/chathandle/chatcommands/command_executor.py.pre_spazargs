@@ -126,6 +126,7 @@ def execute(msg, clientid):
 
     usage = COMMAND_USAGE.get(command)
     required = {
+        "spaz": (2, 2),
         "kill": (1, 1),
         "heal": (1, 1),
         "curse": (1, 1),
@@ -184,12 +185,6 @@ def execute(msg, clientid):
         "creep": (1, 1),
     }
 
-    # /spaz accepts a multi-word character name, so only the
-    # player target is fixed; the rest of the arguments form the name.
-    if command == "spaz" and len(arguments) < 2:
-        send_usage(command, clientid)
-        return None
-
     if command in required:
         min_args, max_args = required[command]
         if not (min_args <= len(arguments) <= max_args):
@@ -221,7 +216,7 @@ def execute(msg, clientid):
 
             elif ctype == "Fun":
                 if command == "spaz":
-                    result = fun.spaz(arguments, clientid)
+                    result = fun.spaz(arguments)
                 else:
                     result = fun.ExcelCommand(
                         command,

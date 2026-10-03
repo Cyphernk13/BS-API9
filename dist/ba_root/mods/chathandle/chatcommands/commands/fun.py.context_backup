@@ -211,78 +211,51 @@ def celeb(arguments):
 
 
 
-def spaz(arguments, clientid=None):
+def spaz(arguments):
     """Change a player's complete BombSquad character appearance."""
-    if len(arguments) < 2:
-        if clientid is not None:
-            send_spaz_help(clientid)
+    if len(arguments) != 2:
         return False
 
     target = str(arguments[0]).strip().lower()
-
-    # Everything after the player id is the character name.
-    # This allows names such as:
-    # Jack Morgan
-    # Easter Bunny
-    # Santa Claus
-    # Snake Shadow
-    # Todd McBurton
-    requested = " ".join(str(x) for x in arguments[1:]).strip()
+    requested = str(arguments[1]).strip()
 
     character = resolve_spaz_character(requested)
-
     if character is None:
-        if clientid is not None:
-            send(
-                f"Error: character '{requested}' was not found.",
-                clientid
-            )
-            send_spaz_help(clientid)
         return False
 
     try:
         activity = bs.get_foreground_host_activity()
+        factory = SpazFactory.get()
+        media = factory.get_media(character)
 
-        if activity is None:
+        def update_appearance(player):
+            actor = getattr(player, "actor", None)
+            if actor is None or not actor.exists():
+                return False
+
+            for field, value in media.items():
+                setattr(actor.node, field, value)
+
+            actor.node.style = factory.get_style(character)
+            return True
+
+        if target == "all":
+            changed = False
+            for player in activity.players:
+                if update_appearance(player):
+                    changed = True
+            return changed
+
+        try:
+            player_id = int(target)
+        except ValueError:
             return False
 
-        # SpazFactory.get() uses the active API9 activity context.
-        with activity.context:
-            factory = SpazFactory.get()
-            media = factory.get_media(character)
+        if player_id < 0 or player_id >= len(activity.players):
+            return False
 
-            def update_appearance(player):
-                actor = getattr(player, "actor", None)
-
-                if actor is None or not actor.exists():
-                    return False
-
-                for field, value in media.items():
-                    setattr(actor.node, field, value)
-
-                actor.node.style = factory.get_style(character)
-                return True
-
-            if target == "all":
-                changed = False
-
-                for player in activity.players:
-                    changed = update_appearance(player) or changed
-
-                return changed
-
-            try:
-                player_id = int(target)
-            except ValueError:
-                return False
-
-            if player_id < 0 or player_id >= len(activity.players):
-                return False
-
-            return update_appearance(activity.players[player_id])
+        return update_appearance(activity.players[player_id])
 
     except Exception as exc:
-        import traceback
-        print(f"[CHATCOMMAND] /spaz failed: {exc!r}")
-        traceback.print_exc()
+        print(f"[CHATCOMMAND] /spaz failed: {exc}")
         return False

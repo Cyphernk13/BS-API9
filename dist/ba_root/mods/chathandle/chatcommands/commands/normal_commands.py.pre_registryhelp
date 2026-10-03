@@ -349,44 +349,7 @@ COMMAND_EXAMPLES = {
 }
 
 
-def get_registered_command_groups():
-    """Return the command registry exactly as declared by each module."""
-    from . import fun, cheats, management
-
-    return (
-        ("Normal", Commands, CommandAliases),
-        ("Fun", fun.Commands, fun.CommandAliases),
-        ("Cheats", cheats.Commands, cheats.CommandAliases),
-        ("Management", management.Commands, management.CommandAliases),
-    )
-
-
-def get_all_registered_commands():
-    """Return the actual registered command/alias names."""
-    result = set()
-
-    for _name, commands, aliases in get_registered_command_groups():
-        result.update(str(x).lower() for x in commands)
-        result.update(str(x).lower() for x in aliases)
-
-    return result
-
-
-def get_aliases_for_command(command):
-    """Return aliases actually registered for the canonical command."""
-    command = command.lower()
-    aliases = []
-
-    for alias, canonical in COMMAND_ALIASES.items():
-        if canonical == command:
-            aliases.append(alias)
-
-    return sorted(set(aliases))
-
-
 def help_command(clientid, accountid, arguments):
-    registered = get_all_registered_commands()
-
     if arguments:
         command = arguments[0].lower().lstrip("/")
 
@@ -394,67 +357,43 @@ def help_command(clientid, accountid, arguments):
             send_spaz_help(clientid)
             return
 
-        if command not in registered:
-            send(f"/{command} isn't a registered command.", clientid)
-            send("Use /help to see the live command registry.", clientid)
+        usage = COMMAND_USAGE.get(command)
+
+        if usage:
+            canonical = COMMAND_ALIASES.get(command, command)
+            description = COMMAND_DESCRIPTIONS.get(
+                canonical,
+                COMMAND_DESCRIPTIONS.get(
+                    command,
+                    "Command description is not available."
+                )
+            )
+
+            send(f"Command: /{command}", clientid)
+            send(f"Usage: {usage}", clientid)
+
+            if canonical != command:
+                send(f"Alias for: /{canonical}", clientid)
+
+            send(f"Description: {description}", clientid)
+
+            example = COMMAND_EXAMPLES.get(canonical)
+            if example:
+                if command != canonical:
+                    example = "/" + command + example[len("/" + canonical):]
+                send(f"Example: {example}", clientid)
+
             return
 
-        usage = COMMAND_USAGE.get(command, f"/{command}")
-        canonical = COMMAND_ALIASES.get(command, command)
-
-        description = COMMAND_DESCRIPTIONS.get(
-            canonical,
-            COMMAND_DESCRIPTIONS.get(
-                command,
-                "No description is currently available."
-            )
-        )
-
-        send(f"Command: /{command}", clientid)
-        send(f"Usage: {usage}", clientid)
-
-        if canonical != command:
-            send(f"Alias for: /{canonical}", clientid)
-
-        aliases = get_aliases_for_command(canonical)
-        if aliases:
-            send(
-                "Aliases: " + " ".join(f"/{x}" for x in aliases),
-                clientid
-            )
-
-        send(f"Description: {description}", clientid)
-
-        example = COMMAND_EXAMPLES.get(canonical)
-        if example:
-            send(f"Example: {example}", clientid)
-
+        send(f"/{command} isn't a recognized command.", clientid)
+        send("Use /help to see the available command groups.", clientid)
         return
 
-    send("Live Command Registry", clientid)
-    send("Commands and aliases below are read from the actual modules.", clientid)
-
-    for group_name, commands, aliases in get_registered_command_groups():
-        commands = [str(x).lower() for x in commands]
-        aliases = [str(x).lower() for x in aliases]
-
-        send(
-            f"{group_name} Commands ({len(commands)}):",
-            clientid
-        )
-        send(
-            " ".join(f"/{x}" for x in commands),
-            clientid
-        )
-
-        if aliases:
-            send(
-                f"{group_name} Aliases ({len(aliases)}):",
-                clientid
-            )
-            send(
-                " ".join(f"/{x}" for x in aliases),
-                clientid
-            )
-
+    send("Player Commands", clientid)
+    send("/help /ping /list /id /stats /me", clientid)
+    send("/uniqeid /pb-id /accountid", clientid)
+    send("Fun: /fly /inv /headless /creepy /celebrate /speed /spaz /floater", clientid)
+    send("Cheats: /kill /heal /curse /sleep /superpunch /gloves /shield /freeze /godmode", clientid)
+    send("Management: /recents /info /kick /ban /remove /sm /nv /dv /tint /pause /cameramode", clientid)
+    send("Roles: /acl /vcl /createrole /addrole /removerole /getroles /addcommand /removecommand", clientid)
     send("Use /help <command> for full details.", clientid)

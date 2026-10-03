@@ -201,18 +201,18 @@
  ],
  "Default Player Profiles": {
   "Client Input Device #1": "__account__",
-  "Client Input Device #2": "\u0e56\u06e3\u06dc\u018a\u0e2ar\u20ad\u32e1\u049c\u13a5ng\u1d3f\u1d2c\u1d33\u1d31",
-  "Client Input Device #3": "\u261e\ua9c1\u2119\ud835\udd38\ud835\udd4a\ud835\udd42\ud835\udd38\ud835\udd43\ua9c2\u261c",
-  "Client Input Device #4": "\u00a3\u03c0\u00d7 The \u00a3\u03c0zo",
+  "Client Input Device #2": "__account__",
+  "Client Input Device #3": "CHAL chal Ajaa",
+  "Client Input Device #4": "__account__",
   "Client Input Device #5": "_random"
  },
  "FFA Series Length": 40,
  "Fleet Zone Ping Last Flush Time": 1790874584,
  "Fleet Zone Pings": {
   "prod": {
-   "delhi.v4": 36.19043657706228,
-   "hyderabad.v4": 16.88672343328246,
-   "mumbai.v4": 2.192058437888976
+   "delhi.v4": 21.516371754891903,
+   "hyderabad.v4": 15.27464410881046,
+   "mumbai.v4": 2.8522631267951337
   }
  },
  "Free-for-All Playlist Randomize": true,
@@ -283,7 +283,7 @@
  "Team Tournament Playlist Selection": "\u041a\u043e\u043f\u0438\u044f \u0421\u0442\u0430\u043d\u0434\u0430\u0440\u0442\u043d\u044b\u0439 \u043f\u043b\u0435\u0439-\u043b\u0438\u0441\u0442 \u0440\u0435\u0436\u0438\u043c\u0430 \u041a\u043e\u043c\u0430\u043d\u0434\u044b",
  "Team Tournament Playlists": {},
  "Teams Series Length": 7,
- "launchCount": 457,
+ "launchCount": 555,
  "lc14173": 1,
  "lc14292": 1
 }
